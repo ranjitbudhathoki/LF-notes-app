@@ -1,10 +1,8 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-
 const app = new Hono();
 
-app.get("/", (c) => {
-  console.log("Hello Hono!", process.env.DATABASE_URL);
+app.get("/", async (c) => {
   return c.text("Hello Hono!");
 });
 
