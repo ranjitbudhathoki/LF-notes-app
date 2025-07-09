@@ -1,0 +1,1 @@
+ALTER TABLE `notes` ADD `slug` text NOT NULL;

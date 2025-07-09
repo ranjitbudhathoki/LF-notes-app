@@ -15,6 +15,13 @@
       "when": 1752040754850,
       "tag": "0001_pretty_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1752048203371,
+      "tag": "0002_wealthy_shatterstar",
+      "breakpoints": true
     }
   ]
 }
