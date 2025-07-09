@@ -5,3 +5,8 @@ export const createCategorSchema = z.object({
   theme: z.string().trim(),
   userId: z.number(),
 });
+
+export const updateCategorySchema = z.object({
+  name: z.string().trim().min(3).optional(),
+  theme: z.string().trim().optional(),
+});
