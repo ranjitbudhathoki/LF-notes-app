@@ -59,23 +59,12 @@ categoriesRouter.post(
   verifyAuth,
   zValidator("json", createCategorSchema),
   async (c) => {
-    const { name, theme, userId } = c.req.valid("json");
+    const { name, theme } = c.req.valid("json");
     const user = c.get("user");
-
-    if (user.id !== userId) {
-      return c.json(
-        {
-          success: false,
-          message:
-            "Unauthorized. You are not authorized to create this category.",
-        },
-        401,
-      );
-    }
 
     const data = await db
       .insert(categories)
-      .values({ name, theme, userId })
+      .values({ name, theme, userId: user.id })
       .returning({
         id: categories.id,
         name: categories.name,
