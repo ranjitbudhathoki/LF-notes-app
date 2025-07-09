@@ -19,7 +19,7 @@ export const notes = sqliteTable("notes", {
   content: text().notNull(),
   userId: int()
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text()
     .notNull()
@@ -32,7 +32,7 @@ export const categories = sqliteTable("categories", {
   name: text().notNull(),
   userId: int()
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   theme: text().notNull(),
   createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text()
@@ -45,10 +45,10 @@ export const noteCategories = sqliteTable("note_categories", {
   id: int().primaryKey({ autoIncrement: true }),
   noteId: int()
     .notNull()
-    .references(() => notes.id),
+    .references(() => notes.id, { onDelete: "cascade" }),
   categoryId: int()
     .notNull()
-    .references(() => categories.id),
+    .references(() => categories.id, { onDelete: "cascade" }),
   createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text()
     .notNull()
