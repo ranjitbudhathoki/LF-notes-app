@@ -4,6 +4,8 @@ import { notes } from "../db/schema.js";
 import { eq, and, type InferSelectModel } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
+import { zValidator } from "@hono/zod-validator";
+import { createNoteSchema } from "../utils/validators/notes.js";
 
 const notesRouter = new Hono<{ Variables: Variables }>();
 
@@ -31,5 +33,12 @@ notesRouter.get("/:id", verifyAuth, async (c) => {
     result: data,
   });
 });
+
+notesRouter.post(
+  "/",
+  verifyAuth,
+  zValidator("json", createNoteSchema),
+  async (c) => {},
+);
 
 export default notesRouter;
