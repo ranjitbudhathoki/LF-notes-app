@@ -51,7 +51,7 @@ authRouter.post("/signup", zValidator("json", registerSchema), async (c) => {
     .select()
     .from(users)
     .where(eq(users.email, email))
-    .get();
+    .get({});
 
   if (existingUser) {
     return c.json({ message: "User already exists" }, 400);
@@ -79,7 +79,44 @@ authRouter.post("/signup", zValidator("json", registerSchema), async (c) => {
 });
 
 authRouter.post("/login", zValidator("json", loginSchema), async (c) => {
-  // implement login logic
+  const { email, password } = c.req.valid("json");
+
+  const existingUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .get();
+
+  if (!existingUser) {
+    return c.json(
+      {
+        message:
+          "Invalid Credetials. Please try again with correct credentials",
+      },
+      404,
+    );
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(
+    password,
+    existingUser.password,
+  );
+
+  console.log("existingUser", existingUser);
+
+  if (!isPasswordCorrect) {
+    return c.json(
+      {
+        message:
+          "Invalid Credetials. Please try again with correct credentials",
+      },
+      401,
+    );
+  }
+
+  const { password: _password, ...safeUser } = existingUser;
+
+  return createAndSendToken(safeUser, c);
 });
 
 export default authRouter;
