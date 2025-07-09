@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `notes_slug_unique` ON `notes` (`slug`);
