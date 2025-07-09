@@ -3,14 +3,8 @@ import db from "../services/drizzle.js";
 import { notes, users } from "../db/schema.js";
 import { eq, and, type InferSelectModel } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
+import type { AppContext } from "../utils/appContext.js";
 
-type User = InferSelectModel<typeof users>;
-
-interface AppContext {
-  Variables: {
-    user: User;
-  };
-}
 const notesRouter = new Hono();
 
 notesRouter.get("/", verifyAuth, async (c: Context<AppContext>) => {
