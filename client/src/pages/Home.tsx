@@ -1,5 +1,5 @@
-import Header from "@/features/layout/Header";
-import SearchAndFilter from "@/features/layout/SearchAndFilter";
+import Header from "@/components/layout/Header";
+import SearchAndFilter from "@/components/layout/SearchAndFilter";
 
 export default function HomePage() {
   return (
