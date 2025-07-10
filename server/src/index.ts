@@ -5,7 +5,14 @@ import verifyAuth from "./utils/verifyAuth.js";
 import notesRouter from "./api/notes.js";
 import categoriesRouter from "./api/categories.js";
 import { HTTPException } from "hono/http-exception";
+import { cors } from "hono/cors";
 const app = new Hono();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
 
 app.onError((err, c) => {
   if (err.name === "TokenExpiredError") {
