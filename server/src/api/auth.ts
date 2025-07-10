@@ -7,8 +7,10 @@ import { eq, type InferSelectModel } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt, { type SignOptions } from "jsonwebtoken";
 import { setCookie } from "hono/cookie";
+import type { Variables } from "../utils/variables.js";
+import verifyAuth from "../utils/verifyAuth.js";
 
-const authRouter = new Hono();
+const authRouter = new Hono<{ Variables: Variables }>();
 type User = InferSelectModel<typeof users>;
 type SafeUser = Omit<User, "password">;
 
@@ -44,6 +46,23 @@ function createAndSendToken(user: SafeUser, c: Context) {
     result: user,
   });
 }
+
+authRouter.get("/me", verifyAuth, async (c) => {
+  const user = c.get("user");
+
+  if (!user) {
+    return c.json({ message: "You're not logged in. Please try again." }, 403);
+  }
+
+  return c.json({
+    success: true,
+    result: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+  });
+});
 
 authRouter.post("/signup", zValidator("json", registerSchema), async (c) => {
   const { name, password, email } = c.req.valid("json");
