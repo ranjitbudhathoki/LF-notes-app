@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, relations } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
@@ -56,3 +56,34 @@ export const noteCategories = sqliteTable("note_categories", {
     .default(sql`(CURRENT_TIMESTAMP)`)
     .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  notes: many(notes),
+  categories: many(categories),
+}));
+
+export const notesRelations = relations(notes, ({ one, many }) => ({
+  user: one(users, {
+    fields: [notes.userId],
+    references: [users.id],
+  }),
+  noteCategories: many(noteCategories),
+}));
+
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  user: one(users, {
+    fields: [categories.userId],
+    references: [users.id],
+  }),
+  noteCategories: many(noteCategories),
+}));
+export const noteCategoriesRelations = relations(noteCategories, ({ one }) => ({
+  note: one(notes, {
+    fields: [noteCategories.noteId],
+    references: [notes.id],
+  }),
+  category: one(categories, {
+    fields: [noteCategories.categoryId],
+    references: [categories.id],
+  }),
+}));
