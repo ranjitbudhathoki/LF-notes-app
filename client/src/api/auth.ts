@@ -4,7 +4,12 @@ interface LoginCredentials {
   password: string;
 }
 
-export async function login({ email, password }: LoginCredentials) {
-  const { data } = await _axios.post("/login", { email, password });
+export async function loginApi({ email, password }: LoginCredentials) {
+  const { data } = await _axios.post("/auth/login", { email, password });
+  return data;
+}
+
+export async function getCurrentUserApi() {
+  const { data } = await _axios.get("/auth/me");
   return data;
 }
