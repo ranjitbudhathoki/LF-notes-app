@@ -6,7 +6,7 @@ import { users } from "../db/schema.js";
 import { eq, type InferSelectModel } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt, { type SignOptions } from "jsonwebtoken";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import type { Variables } from "../utils/variables.js";
 import verifyAuth from "../utils/verifyAuth.js";
 
@@ -141,4 +141,11 @@ authRouter.post("/login", zValidator("json", loginSchema), async (c) => {
   return createAndSendToken(safeUser, c);
 });
 
+authRouter.post("/logout", (c) => {
+  deleteCookie(c, "jwt");
+  return c.json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});
 export default authRouter;
