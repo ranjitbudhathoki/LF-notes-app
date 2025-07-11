@@ -8,7 +8,7 @@ export default function HomePage() {
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SearchAndFilter />
-        <Notes selectedCategories={new Set()} />
+        <Notes />
       </div>
     </main>
   );
