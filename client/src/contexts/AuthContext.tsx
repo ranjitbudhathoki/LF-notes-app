@@ -1,11 +1,4 @@
-import _axios from "@/config/axios";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUserApi } from "@/api/auth";
 
