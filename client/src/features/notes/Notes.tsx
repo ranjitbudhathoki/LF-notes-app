@@ -1,5 +1,6 @@
 import { getNotesApi } from "@/api/notes";
 import { useQuery } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 
 interface Note {
   id: number;
@@ -46,9 +47,12 @@ export default function Notes() {
               <h3 className="font-semibold mb-2 text-gray-900 text-sm sm:text-base">
                 {note.title}
               </h3>
-              <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3">
-                {note.content}
-              </p>
+              <div
+                className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(note.content),
+                }}
+              ></div>
 
               <div className="flex gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
                 {note.categories.map((category) => {
