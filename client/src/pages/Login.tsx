@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router";
+import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { loginApi } from "@/api/auth";
@@ -14,8 +14,9 @@ interface Inputs {
 }
 export default function LoginPage() {
   const { register, handleSubmit, formState } = useForm<Inputs>();
-  const { setIsAuthenticated, setUser } = useAuth();
+  const { setIsAuthenticated, isAuthenticated, setUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Inputs) => loginApi(data),
@@ -25,6 +26,7 @@ export default function LoginPage() {
       toast.success("Login successful");
       navigate("/");
     },
+
     onError: (error: unknown) => {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Something went wrong");
@@ -33,6 +35,12 @@ export default function LoginPage() {
       }
     },
   });
+
+  if (isAuthenticated) {
+    const fromPath = location.state?.path || "/";
+    return <Navigate to={fromPath} replace />;
+  }
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     mutate(data);
   };
