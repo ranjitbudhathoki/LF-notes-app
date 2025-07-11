@@ -1,9 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router";
-
+import { Link, useNavigate } from "react-router";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { loginApi } from "@/api/auth";
+import toast from "react-hot-toast";
+import axios from "axios";
+import useAuth from "@/hooks/useAuth";
+interface Inputs {
+  email: string;
+  password: string;
+}
 export default function LoginPage() {
+  const { register, handleSubmit, formState } = useForm<Inputs>();
+  const { setIsAuthenticated, setUser } = useAuth();
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: Inputs) => loginApi(data),
+    onSuccess: (data) => {
+      setIsAuthenticated(true);
+      setUser(data.result);
+      toast.success("Login successful");
+      navigate("/");
+    },
+    onError: (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    },
+  });
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    mutate(data);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm ">
@@ -13,7 +46,7 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <Label
                 htmlFor="email"
@@ -23,11 +56,11 @@ export default function LoginPage() {
               </Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
                 placeholder="you@example.com"
                 className="mt-1"
                 required
+                {...register("email")}
               />
             </div>
 
@@ -40,16 +73,16 @@ export default function LoginPage() {
               </Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
                 placeholder="••••••••"
                 className="mt-1"
                 required
+                {...register("password")}
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Signing In..." : "Sign In"}
             </Button>
           </form>
 
