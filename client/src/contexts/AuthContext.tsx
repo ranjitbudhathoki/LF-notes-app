@@ -25,11 +25,14 @@ interface AuthProviderProps {
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
-  const { data, isLoading } = useQuery({
+
+  const { data, error, isLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUserApi,
     refetchOnMount: false,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 
@@ -37,10 +40,14 @@ function AuthProvider({ children }: AuthProviderProps) {
     if (data) {
       setUser(data.result);
       setIsAuthenticated(true);
+      setIsAuthLoading(false);
     }
-  }, [data]);
+    if (error) {
+      setIsAuthLoading(false);
+    }
+  }, [data, error]);
 
-  if (isLoading || (!user && !isAuthenticated)) {
+  if (isLoading || isAuthLoading) {
     return (
       <div className="flex h-screen w-full bg-white items-center justify-center">
         <div className="h-16 w-16 animate-spin text-gray-900 rounded-full border-b-2 border-t-2 border-primary"></div>
