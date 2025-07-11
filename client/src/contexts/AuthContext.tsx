@@ -13,6 +13,7 @@ interface AuthContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
+  isLoading: boolean;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -23,19 +24,22 @@ interface AuthProviderProps {
 }
 
 function AuthProvider({ children }: AuthProviderProps) {
+  console.log("auth provider called");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUserApi,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    console.log("useEFfecte called");
-    console.log("data", data);
     if (data) {
       setUser(data);
+      setIsAuthenticated(true);
     }
   }, [data]);
 
@@ -45,7 +49,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider
-      value={{ user, setIsAuthenticated, isAuthenticated, setUser }}
+      value={{ user, setIsAuthenticated, isAuthenticated, setUser, isLoading }}
     >
       {children}
     </AuthContext.Provider>
