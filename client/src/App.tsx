@@ -4,6 +4,7 @@ import { Navigate, Routes } from "react-router";
 import { Route } from "react-router";
 import HomePage from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PageNotFound from "./pages/PageNotFound";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       />
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignupPage />} />
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 }
