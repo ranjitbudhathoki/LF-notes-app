@@ -24,14 +24,11 @@ interface AuthProviderProps {
 }
 
 function AuthProvider({ children }: AuthProviderProps) {
-  console.log("auth provider called");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
-
   const { data, isLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUserApi,
-    retry: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -43,8 +40,12 @@ function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [data]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading || (!user && !isAuthenticated)) {
+    return (
+      <div className="flex h-screen w-full bg-white items-center justify-center">
+        <div className="h-16 w-16 animate-spin text-gray-900 rounded-full border-b-2 border-t-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
