@@ -1,6 +1,6 @@
 import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
-import { Routes } from "react-router";
+import { Navigate, Routes } from "react-router";
 import { Route } from "react-router";
 import HomePage from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -8,8 +8,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/notes" replace />} />
       <Route
-        index
+        path="/notes"
         element={
           <ProtectedRoute>
             <HomePage />
