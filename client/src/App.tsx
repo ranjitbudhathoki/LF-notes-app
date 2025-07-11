@@ -5,7 +5,7 @@ import { Route } from "react-router";
 import HomePage from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageNotFound from "./pages/PageNotFound";
-
+import CreateNoteForm from "./features/notes/CreateNoteForm";
 function App() {
   return (
     <Routes>
@@ -18,6 +18,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/notes/new"
+        element={
+          <ProtectedRoute>
+            <CreateNoteForm />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignupPage />} />
       <Route path="*" element={<PageNotFound />} />
