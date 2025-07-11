@@ -13,7 +13,11 @@ interface Inputs {
   password: string;
 }
 export default function LoginPage() {
-  const { register, handleSubmit, formState } = useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
   const { setIsAuthenticated, isAuthenticated, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,6 +74,9 @@ export default function LoginPage() {
                 required
                 {...register("email")}
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
             </div>
 
             <div>
@@ -87,6 +94,11 @@ export default function LoginPage() {
                 required
                 {...register("password")}
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isPending}>
