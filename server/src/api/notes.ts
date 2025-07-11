@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import db from "../services/drizzle.js";
-import { noteCategories, notes } from "../db/schema.js";
+import { categories, noteCategories, notes } from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
@@ -16,11 +16,37 @@ const notesRouter = new Hono<{ Variables: Variables }>();
 notesRouter.get("/", verifyAuth, async (c) => {
   const user = c.get("user");
 
-  const data = await db.select().from(notes).where(eq(notes.userId, user.id));
+  const data = await db.query.notes.findMany({
+    where: eq(notes.userId, user.id),
+    with: {
+      noteCategories: {
+        with: {
+          category: true,
+        },
+      },
+    },
+  });
+
+  const transformedData = data.map((note) => ({
+    id: note.id,
+    title: note.title,
+    slug: note.slug,
+    content: note.content,
+    userId: note.userId,
+    createdAt: note.createdAt,
+    updatedAt: note.updatedAt,
+    categories: note.noteCategories.map((nc) => {
+      return {
+        name: nc.category.name,
+        theme: nc.category.theme,
+        id: nc.category.id,
+      };
+    }),
+  }));
 
   return c.json({
     success: true,
-    result: data,
+    result: transformedData,
   });
 });
 
