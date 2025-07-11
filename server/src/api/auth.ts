@@ -36,6 +36,9 @@ function createAndSendToken(user: SafeUser, c: Context) {
   );
   const token = signToken(user.id);
   setCookie(c, "jwt", token, {
+    sameSite: "Lax",
+    httpOnly: true,
+    path: "/",
     expires: new Date(Date.now() + cookieExpiresDays * 24 * 60 * 60 * 1000),
   });
 
