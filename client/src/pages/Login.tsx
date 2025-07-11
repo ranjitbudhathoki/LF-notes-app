@@ -71,11 +71,18 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 className="mt-1"
-                required
-                {...register("email")}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
+                  },
+                })}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -91,8 +98,9 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 className="mt-1"
-                required
-                {...register("password")}
+                {...register("password", {
+                  required: "Password is required",
+                })}
               />
               {errors.password && (
                 <p className="text-red-500 text-sm">
