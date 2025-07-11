@@ -2,10 +2,10 @@ import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUserApi } from "@/api/auth";
 
-interface User {
+export interface User {
   id: number;
   email: string;
-  username: string;
+  name: string;
 }
 
 interface AuthContextType {
@@ -38,7 +38,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     if (data) {
-      setUser(data);
+      setUser(data.result);
       setIsAuthenticated(true);
     }
   }, [data]);

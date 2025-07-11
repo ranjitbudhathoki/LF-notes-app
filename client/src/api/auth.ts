@@ -22,3 +22,8 @@ export async function getCurrentUserApi() {
   const { data } = await _axios.get("/auth/me");
   return data;
 }
+
+export async function logoutApi() {
+  const { data } = await _axios.post("/auth/logout");
+  return data;
+}
