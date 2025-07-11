@@ -103,7 +103,7 @@ export default function LoginPage() {
                 })}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm mt-1">
                   {errors.password.message}
                 </p>
               )}
