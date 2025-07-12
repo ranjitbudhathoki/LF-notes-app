@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getNoteBySlugApi } from "@/api/notes";
 import DOMPurify from "dompurify";
 import { Badge } from "@/components/ui/badge";
+import Loader from "@/components/Loader";
 interface Note {
   id: number;
   title: string;
@@ -39,12 +40,9 @@ export default function NoteDetail() {
   });
 
   if (isLoading) {
-    return <div>loading....</div>;
+    return <Loader />;
   }
   const note: Note = noteData.result;
-  console.log("note", note);
-
-  console.log("sanitized", DOMPurify.sanitize(note.content));
 
   return (
     <div className="max-w-4xl space-y-6 mx-auto mt-4 ">

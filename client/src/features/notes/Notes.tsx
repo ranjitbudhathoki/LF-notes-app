@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import DOMPurify from "dompurify";
 import { Link } from "react-router";
 import { NoteActions } from "./NoteActions";
+import SearchAndFilter from "@/components/layout/SearchAndFilter";
+import Loader from "@/components/Loader";
 
 interface Note {
   id: number;
@@ -26,10 +28,11 @@ export default function Notes() {
     queryFn: getNotesApi,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  const notes = notesData.result;
+  if (isLoading) return <Loader />;
+  const notes: Note[] = notesData.result;
   return (
     <div className="space-y-6">
+      <SearchAndFilter />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">All Notes</h2>

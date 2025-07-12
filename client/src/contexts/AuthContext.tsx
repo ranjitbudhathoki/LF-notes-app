@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUserApi } from "@/api/auth";
+import Loader from "@/components/Loader";
 
 export interface User {
   id: number;
@@ -48,11 +49,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   }, [data, error]);
 
   if (isLoading || isAuthLoading) {
-    return (
-      <div className="flex h-screen w-full bg-white items-center justify-center">
-        <div className="h-16 w-16 animate-spin text-gray-900 rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
