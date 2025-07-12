@@ -1,7 +1,15 @@
 import _axios from "@/config/axios";
 
-export async function getNotesApi() {
-  const { data } = await _axios.get("/notes");
+export async function getNotesApi({
+  page = 1,
+  limit = 10,
+}: {
+  page?: number;
+  limit?: number;
+}) {
+  const { data } = await _axios.get("/notes", {
+    params: { page, limit },
+  });
   return data;
 }
 interface CreateNotePayload {
