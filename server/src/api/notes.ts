@@ -54,12 +54,6 @@ notesRouter.get("/:slug", verifyAuth, async (c) => {
   const slug = c.req.param("slug");
   const user = c.get("user");
 
-  // const data = await db
-  //   .select()
-  //   .from(notes)
-  //   .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
-  //   .get();
-
   const data = await db.query.notes.findFirst({
     where: and(eq(notes.slug, slug), eq(notes.userId, user.id)),
     with: {
