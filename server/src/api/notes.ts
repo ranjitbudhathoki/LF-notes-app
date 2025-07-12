@@ -168,14 +168,14 @@ notesRouter.patch(
   },
 );
 
-notesRouter.delete("/:id", verifyAuth, async (c) => {
-  const id = parseInt(c.req.param("id"));
+notesRouter.delete("/:slug", verifyAuth, async (c) => {
+  const slug = c.req.param("slug");
   const user = c.get("user");
 
   const note = await db
     .select()
     .from(notes)
-    .where(and(eq(notes.id, id), eq(notes.userId, user.id)))
+    .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
     .get();
 
   if (!note) {
@@ -185,7 +185,7 @@ notesRouter.delete("/:id", verifyAuth, async (c) => {
     });
   }
 
-  await db.delete(notes).where(eq(notes.id, id));
+  await db.delete(notes).where(eq(notes.slug, slug));
 
   return c.json({
     success: true,
