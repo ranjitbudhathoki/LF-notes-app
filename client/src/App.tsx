@@ -6,6 +6,8 @@ import HomePage from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageNotFound from "./pages/PageNotFound";
 import CreateNoteForm from "./features/notes/CreateNoteForm";
+import NoteDetail from "./features/notes/NoteDetail";
+import Notes from "./features/notes/Notes";
 function App() {
   return (
     <Routes>
@@ -17,16 +19,11 @@ function App() {
             <HomePage />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/notes/new"
-        element={
-          <ProtectedRoute>
-            <CreateNoteForm />
-          </ProtectedRoute>
-        }
-      />
-
+      >
+        <Route index element={<Notes />} />
+        <Route path="new" element={<CreateNoteForm />} />
+        <Route path=":slug" element={<NoteDetail />} />
+      </Route>
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignupPage />} />
       <Route path="*" element={<PageNotFound />} />
