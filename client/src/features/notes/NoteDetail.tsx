@@ -1,0 +1,100 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Edit } from "lucide-react";
+import { Link, useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getNoteBySlugApi } from "@/api/notes";
+// import { Badge } from "@/components/ui/badge";
+import DOMPurify from "dompurify";
+import Header from "@/components/layout/Header";
+
+export default function NoteDetail() {
+  const { slug } = useParams();
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+  const { data: noteData, isLoading } = useQuery({
+    queryKey: ["note", slug],
+    queryFn: () => getNoteBySlugApi(slug!),
+  });
+
+  if (isLoading) {
+    return <div>loading....</div>;
+  }
+  const note = noteData.result;
+  console.log("note", note);
+
+  console.log("sanitized", DOMPurify.sanitize(note.content));
+
+  return (
+    <div className="max-w-4xl space-y-6 mx-auto mt-4 ">
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/notes">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to All Notes
+          </Link>
+        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/notes/edit`}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="space-y-2">
+            <CardTitle className="text-2xl">{note.title}</CardTitle>
+            <div className="flex items-center justify-between text-sm text-gray-500">
+              <span>Created {formatDate(note.createdAt)}</span>
+              {note.updated_at !== note.created_at && (
+                <span>Updated {formatDate(note.updatedAt)}</span>
+              )}
+            </div>
+            {/* {note.categories && note.categories.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {note.categories.map((category) => (
+                  <Badge
+                    key={category.id}
+                    variant="secondary"
+                    style={{
+                      backgroundColor: `${category.color}20`,
+                      color: category.color,
+                    }}
+                  >
+                    {category.name}
+                  </Badge>
+                ))}
+              </div>
+            )} */}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {note.content ? (
+            <div
+              className="prose"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(note.content),
+              }}
+            />
+          ) : (
+            <p className="text-muted-foreground italic">No content</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
