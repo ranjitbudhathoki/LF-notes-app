@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router";
 
 const categories = [
   { id: 1, name: "Urgent", color: "bg-red-500", count: 2 },
@@ -25,6 +26,7 @@ interface SearchBarProps {
 }
 
 export default function SearchAndFilter({ onFiltersChange }: SearchBarProps) {
+  const navigate = useNavigate();
   const [selectedCategories, setSelectedCategories] = useState<Set<number>>(
     new Set(),
   );
@@ -91,7 +93,12 @@ export default function SearchAndFilter({ onFiltersChange }: SearchBarProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button className="text-white rounded-full px-3 py-2 sm:px-4 sm:py-2.5 whitespace-nowrap text-sm">
+          <Button
+            className="text-white rounded-full px-3 py-2 sm:px-4 sm:py-2.5 whitespace-nowrap text-sm"
+            onClick={() => {
+              navigate("/notes/new");
+            }}
+          >
             <Plus className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">New Note</span>
           </Button>

@@ -3,15 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategoriesApi } from "@/api/categories";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { createNoteApi } from "@/api/notes";
+import { getNoteBySlugApi, updateNoteApi } from "@/api/notes";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Loader from "@/components/Loader";
+import { useEffect } from "react";
 
 interface Category {
   id: number;
@@ -28,10 +30,14 @@ interface Inputs {
 }
 
 export default function EditNoteForm() {
+  const { slug } = useParams();
+  console.log("edit slug", slug);
+
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
@@ -40,16 +46,25 @@ export default function EditNoteForm() {
       categoryIds: [],
     },
   });
+
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesApi,
   });
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
+  const { data: noteData, isLoading: isNoteLoading } = useQuery({
+    queryKey: ["note", slug],
+    queryFn: () => getNoteBySlugApi(slug!),
+    enabled: !!slug,
+  });
+
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Inputs) => createNoteApi(data),
+    mutationFn: (data: Inputs) => updateNoteApi(slug!, data),
     onSuccess: () => {
-      toast.success("Note created successfully");
+      toast.success("Note updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["notes"],
       });
@@ -64,23 +79,36 @@ export default function EditNoteForm() {
     },
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    if (noteData) {
+      reset({
+        title: noteData.result.title || "",
+        content: noteData.result.content || "",
+        categoryIds:
+          noteData.result.categories?.map(
+            (category: Category) => category.id,
+          ) || [],
+      });
+    }
+  }, [noteData, reset]);
+
+  if (isLoading || isNoteLoading) {
+    return <Loader />;
   }
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     mutate(data);
+
+    console.log({ data });
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Create New Note</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Note</h1>
           <div className="flex items-center gap-2">
-            <p className="text-gray-600">
-              Capture your thoughts and organize them with categories
-            </p>
+            <p className="text-gray-600">Make changes to your note</p>
           </div>
         </div>
 
@@ -94,12 +122,12 @@ export default function EditNoteForm() {
 
         <Card className="shadow-sm">
           <CardHeader className="border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-xl">Create New Note</CardTitle>
+            <div className="flex items-center gap-1">
+              <CardTitle className="text-xl">Edit Note</CardTitle>
             </div>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="px-6">
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
@@ -221,7 +249,7 @@ export default function EditNoteForm() {
                   className=" text-white px-6"
                   disabled={isPending}
                 >
-                  {isPending ? "Creating Note..." : "Create Note"}
+                  {isPending ? "Updating Note..." : "Update Note"}
                 </Button>
 
                 <Link to="/notes">

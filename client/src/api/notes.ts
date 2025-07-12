@@ -24,7 +24,7 @@ export async function deleteNoteApi(slug: string) {
   return data;
 }
 
-export async function updateNoteApi(id: number, payload: CreateNotePayload) {
-  const { data } = await _axios.put(`/notes/${id}`, payload);
+export async function updateNoteApi(slug: string, payload: CreateNotePayload) {
+  const { data } = await _axios.patch(`/notes/${slug}`, payload);
   return data;
 }

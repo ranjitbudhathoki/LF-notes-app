@@ -12,6 +12,7 @@ import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { createNoteApi } from "@/api/notes";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Loader from "@/components/Loader";
 
 interface Category {
   id: number;
@@ -40,12 +41,15 @@ export default function CreateNoteForm() {
       categoryIds: [],
     },
   });
+
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesApi,
   });
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
   const { mutate, isPending } = useMutation({
     mutationFn: (data: Inputs) => createNoteApi(data),
     onSuccess: () => {
@@ -65,7 +69,7 @@ export default function CreateNoteForm() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
