@@ -64,11 +64,7 @@ export default function Notes() {
                         return (
                           <span
                             key={category.id}
-                            style={{
-                              backgroundColor: category.theme,
-                              color: "#fff",
-                            }}
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${category.theme}-300 `}
+                            className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium"
                           >
                             {category.name}
                           </span>
