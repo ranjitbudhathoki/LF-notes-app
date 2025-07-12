@@ -33,7 +33,13 @@ export default function CreateNoteForm() {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    defaultValues: {
+      title: "",
+      content: "",
+      categoryIds: [],
+    },
+  });
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesApi,
