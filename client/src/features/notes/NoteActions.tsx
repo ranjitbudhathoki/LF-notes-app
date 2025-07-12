@@ -21,17 +21,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteNoteApi } from "@/api/notes";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 interface NoteActionsProps {
-  noteId: number;
+  noteSlug: string;
 }
 
-export function NoteActions({ noteId }: NoteActionsProps) {
+export function NoteActions({ noteSlug }: NoteActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { mutate: deleteNote, isPending: isDeleting } = useMutation({
-    mutationFn: () => deleteNoteApi(noteId!),
+    mutationFn: () => deleteNoteApi(noteSlug!),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["notes"],
@@ -56,7 +58,7 @@ export function NoteActions({ noteId }: NoteActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate(`/notes/${noteId}/edit`)}>
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>

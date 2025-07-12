@@ -84,7 +84,7 @@ export default function Notes() {
                 </div>
               </Link>
               <div className="absolute top-2 right-2 z-10">
-                <NoteActions noteId={note.id} />
+                <NoteActions noteSlug={note.slug} />
               </div>
             </div>
           ))}

@@ -19,8 +19,8 @@ export async function getNoteBySlugApi(slug: string) {
   return data;
 }
 
-export async function deleteNoteApi(id: number) {
-  const { data } = await _axios.delete(`/notes/${id}`);
+export async function deleteNoteApi(slug: string) {
+  const { data } = await _axios.delete(`/notes/${slug}`);
   return data;
 }
 
