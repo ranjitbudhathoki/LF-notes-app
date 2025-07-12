@@ -68,7 +68,8 @@ export default function EditNoteForm() {
       queryClient.invalidateQueries({
         queryKey: ["notes"],
       });
-      navigate("/notes");
+
+      navigate(`/notes/${slug}`);
     },
     onError: (error: unknown) => {
       if (axios.isAxiosError(error)) {
@@ -113,7 +114,7 @@ export default function EditNoteForm() {
         </div>
 
         <Link
-          to="/notes"
+          to={`/notes/${slug}`}
           className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
