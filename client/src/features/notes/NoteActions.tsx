@@ -58,7 +58,7 @@ export function NoteActions({ noteSlug }: NoteActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => navigate(`/notes/${noteId}/edit`)}>
+          <DropdownMenuItem onClick={() => navigate(`/notes/${noteSlug}/edit`)}>
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>

@@ -8,6 +8,7 @@ import PageNotFound from "./pages/PageNotFound";
 import CreateNoteForm from "./features/notes/CreateNoteForm";
 import NoteDetail from "./features/notes/NoteDetail";
 import Notes from "./features/notes/Notes";
+import EditNoteForm from "./features/notes/EditNoteForm";
 function App() {
   return (
     <Routes>
@@ -23,6 +24,7 @@ function App() {
         <Route index element={<Notes />} />
         <Route path="new" element={<CreateNoteForm />} />
         <Route path=":slug" element={<NoteDetail />} />
+        <Route path=":slug/edit" element={<EditNoteForm />} />
       </Route>
       <Route path="login" element={<LoginPage />} />
       <Route path="signup" element={<SignupPage />} />
