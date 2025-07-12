@@ -54,14 +54,51 @@ notesRouter.get("/:slug", verifyAuth, async (c) => {
   const slug = c.req.param("slug");
   const user = c.get("user");
 
-  const data = await db
-    .select()
-    .from(notes)
-    .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
-    .get();
+  // const data = await db
+  //   .select()
+  //   .from(notes)
+  //   .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
+  //   .get();
+
+  const data = await db.query.notes.findFirst({
+    where: and(eq(notes.slug, slug), eq(notes.userId, user.id)),
+    with: {
+      noteCategories: {
+        with: {
+          category: true,
+        },
+      },
+    },
+  });
+
+  if (!data) {
+    return c.json(
+      {
+        success: false,
+        error: "Note not found",
+      },
+      404,
+    );
+  }
+  const transformedData = {
+    id: data.id,
+    title: data.title,
+    slug: data.slug,
+    content: data.content,
+    userId: data.userId,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    categories: data.noteCategories.map((nc) => {
+      return {
+        name: nc.category.name,
+        theme: nc.category.theme,
+        id: nc.category.id,
+      };
+    }),
+  };
   return c.json({
     success: true,
-    result: data,
+    result: transformedData,
   });
 });
 
