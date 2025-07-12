@@ -146,18 +146,20 @@ notesRouter.post(
 );
 
 notesRouter.patch(
-  "/:id",
+  "/:slug",
   verifyAuth,
   zValidator("json", updateNoteSchema),
   async (c) => {
-    const id = parseInt(c.req.param("id"));
-    const parsedBody = c.req.valid("json");
+    const slug = c.req.param("slug");
+    const { categoryIds, ...rest } = c.req.valid("json");
+
     const user = c.get("user");
 
     const existingNote = await db
       .select({ id: notes.id })
       .from(notes)
-      .where(and(eq(notes.id, id), eq(notes.userId, user.id)));
+      .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
+      .get();
 
     if (!existingNote) {
       return c.json({
@@ -165,6 +167,39 @@ notesRouter.patch(
         message: "Note not found or you don't have permission to edit it",
       });
     }
+
+    console.log("existing note", existingNote);
+
+    const result = await db.transaction(async (tx) => {
+      const updatedNote = await tx
+        .update(notes)
+        .set({
+          ...rest,
+        })
+        .where(eq(notes.id, existingNote.id))
+        .returning()
+        .get();
+
+      if (categoryIds) {
+        await tx
+          .delete(noteCategories)
+          .where(eq(noteCategories.noteId, existingNote.id));
+
+        const noteCategoryValues = categoryIds.map((categoryId) => ({
+          noteId: existingNote.id,
+          categoryId: categoryId,
+        }));
+
+        await tx.insert(noteCategories).values(noteCategoryValues);
+      }
+
+      return updatedNote;
+    });
+
+    return c.json({
+      success: true,
+      data: result,
+    });
   },
 );
 
