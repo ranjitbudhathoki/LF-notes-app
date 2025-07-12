@@ -50,13 +50,14 @@ notesRouter.get("/", verifyAuth, async (c) => {
   });
 });
 
-notesRouter.get("/:id", verifyAuth, async (c) => {
-  const id = parseInt(c.req.param("id"));
+notesRouter.get("/:slug", verifyAuth, async (c) => {
+  const slug = c.req.param("slug");
   const user = c.get("user");
+
   const data = await db
     .select()
     .from(notes)
-    .where(and(eq(notes.id, id), eq(notes.userId, user.id)))
+    .where(and(eq(notes.slug, slug), eq(notes.userId, user.id)))
     .get();
   return c.json({
     success: true,
