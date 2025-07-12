@@ -59,16 +59,16 @@ categoriesRouter.post(
   verifyAuth,
   zValidator("json", createCategorSchema),
   async (c) => {
-    const { name, theme } = c.req.valid("json");
+    const { name } = c.req.valid("json");
     const user = c.get("user");
 
     const data = await db
       .insert(categories)
-      .values({ name, theme, userId: user.id })
+      .values({ name, userId: user.id })
       .returning({
         id: categories.id,
         name: categories.name,
-        theme: categories.theme,
+
         createdAt: categories.createdAt,
         updatedAt: categories.updatedAt,
       })
@@ -112,7 +112,6 @@ categoriesRouter.patch(
       .select({
         id: categories.id,
         name: categories.name,
-        theme: categories.theme,
         createdAt: categories.createdAt,
         updatedAt: categories.updatedAt,
       })

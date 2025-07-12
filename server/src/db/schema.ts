@@ -34,7 +34,6 @@ export const categories = sqliteTable("categories", {
   userId: int()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  theme: text().notNull(),
   createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text()
     .notNull()
