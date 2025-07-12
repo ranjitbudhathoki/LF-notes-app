@@ -1,6 +1,8 @@
 import { getNotesApi } from "@/api/notes";
 import { useQuery } from "@tanstack/react-query";
 import DOMPurify from "dompurify";
+import { Link } from "react-router";
+import { NoteActions } from "./NoteActions";
 
 interface Note {
   id: number;
@@ -25,6 +27,7 @@ export default function Notes() {
   });
 
   if (isLoading) return <div>Loading...</div>;
+  const notes = notesData.result;
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -37,38 +40,46 @@ export default function Notes() {
         </div>
       </div>
 
-      {notesData.result.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {notesData.result.map((note: Note) => (
-            <div
-              key={note.id}
-              className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <h3 className="font-semibold mb-2 text-gray-900 text-sm sm:text-base">
-                {note.title}
-              </h3>
-              <div
-                className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(note.content),
-                }}
-              ></div>
-
-              <div className="flex gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
-                {note.categories.map((category) => {
-                  return (
-                    <span
-                      key={category.id}
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${category.theme}-300 `}
-                    >
-                      {category.name}
-                    </span>
-                  );
-                })}
-              </div>
-
-              <div className="text-xs text-gray-400">
-                {new Date(note.createdAt).toLocaleDateString()}
+      {notes.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ">
+          {notes.map((note: Note) => (
+            <div key={note.id} className="relative">
+              <Link to={`/notes/${note.slug}`}>
+                <div className="flex flex-col h-[12rem] bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 transition-shadow cursor-pointer hover:bg-gray-50 hover:shadow-md">
+                  <h3 className="font-semibold mb-2 text-gray-900 text-sm sm:text-base flex-shrink-0 pr-8">
+                    {note.title}
+                  </h3>
+                  <div
+                    className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-4  flex-grow overflow-hidden"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(note.content),
+                    }}
+                  ></div>
+                  <div className="flex-shrink-0">
+                    <div className="flex gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
+                      {note.categories.map((category) => {
+                        return (
+                          <span
+                            key={category.id}
+                            style={{
+                              backgroundColor: category.theme,
+                              color: "#fff",
+                            }}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${category.theme}-300 `}
+                          >
+                            {category.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {new Date(note.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+              <div className="absolute top-2 right-2 z-10">
+                <NoteActions />
               </div>
             </div>
           ))}
