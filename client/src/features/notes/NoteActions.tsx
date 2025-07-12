@@ -17,47 +17,35 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteNoteApi } from "@/api/notes";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 interface NoteActionsProps {
   noteId: number;
 }
 
-export function NoteActions() {
+export function NoteActions({ noteId }: NoteActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  // const router = useRouter();
-  // const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // const handleDelete = async () => {
-  //   setIsDeleting(true);
-
-  //   try {
-  //     const result = await deleteNote(noteId);
-
-  //     if (result.error) {
-  //       toast({
-  //         title: "Error",
-  //         description: result.error,
-  //         variant: "destructive",
-  //       });
-  //     } else {
-  //       toast({
-  //         title: "Success",
-  //         description: "Note deleted successfully",
-  //       });
-  //       router.push("/dashboard");
-  //     }
-  //   } catch (error) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to delete note",
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setIsDeleting(false);
-  //     setShowDeleteDialog(false);
-  //   }
-  // };
+  const { mutate: deleteNote, isPending: isDeleting } = useMutation({
+    mutationFn: () => deleteNoteApi(noteId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["notes"],
+      });
+      toast.success("Note deleted successfully");
+    },
+    onError: (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    },
+  });
 
   return (
     <>
@@ -68,9 +56,7 @@ export function NoteActions() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-          // onClick={() => router.push(`/notes/${noteId}/edit`)}
-          >
+          <DropdownMenuItem>
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>
@@ -96,7 +82,7 @@ export function NoteActions() {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              // onClick={handleDelete}
+              onClick={() => deleteNote()}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
