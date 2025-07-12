@@ -5,7 +5,7 @@ import { Link } from "react-router";
 import { NoteActions } from "./NoteActions";
 import SearchAndFilter from "@/components/layout/SearchAndFilter";
 import Loader from "@/components/Loader";
-
+import { formatDistanceToNow } from "date-fns";
 interface Note {
   id: number;
   title: string;
@@ -76,7 +76,9 @@ export default function Notes() {
                       })}
                     </div>
                     <div className="text-xs text-gray-400">
-                      {new Date(note.createdAt).toLocaleDateString()}
+                      {formatDistanceToNow(new Date(note.createdAt), {
+                        addSuffix: true,
+                      })}
                     </div>
                   </div>
                 </div>
