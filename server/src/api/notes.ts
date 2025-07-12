@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import db from "../services/drizzle.js";
-import { categories, noteCategories, notes } from "../db/schema.js";
-import { eq, and } from "drizzle-orm";
+import { noteCategories, notes } from "../db/schema.js";
+import { eq, and, count } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
 import { zValidator } from "@hono/zod-validator";
@@ -10,12 +10,20 @@ import {
   updateNoteSchema,
 } from "../utils/validators/notes.js";
 import { convert } from "url-slug";
+import z from "zod";
 
 const notesRouter = new Hono<{ Variables: Variables }>();
 
+const paginationSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).default(10),
+});
+
 notesRouter.get("/", verifyAuth, async (c) => {
   const user = c.get("user");
-
+  const { page, limit: requestedLimit } = paginationSchema.parse(c.req.query());
+  const limit = Math.min(requestedLimit, 20);
+  const offset = (page - 1) * limit;
   const data = await db.query.notes.findMany({
     where: eq(notes.userId, user.id),
     with: {
@@ -25,7 +33,17 @@ notesRouter.get("/", verifyAuth, async (c) => {
         },
       },
     },
+    limit,
+    offset,
   });
+
+  const countResult = await db
+    .select({ count: count() })
+    .from(notes)
+    .where(eq(notes.userId, user.id))
+    .get();
+
+  const total = countResult?.count ?? 0;
 
   const transformedData = data.map((note) => ({
     id: note.id,
@@ -38,7 +56,6 @@ notesRouter.get("/", verifyAuth, async (c) => {
     categories: note.noteCategories.map((nc) => {
       return {
         name: nc.category.name,
-        theme: nc.category.theme,
         id: nc.category.id,
       };
     }),
@@ -47,6 +64,12 @@ notesRouter.get("/", verifyAuth, async (c) => {
   return c.json({
     success: true,
     result: transformedData,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
   });
 });
 
@@ -85,7 +108,6 @@ notesRouter.get("/:slug", verifyAuth, async (c) => {
     categories: data.noteCategories.map((nc) => {
       return {
         name: nc.category.name,
-        theme: nc.category.theme,
         id: nc.category.id,
       };
     }),
@@ -167,8 +189,6 @@ notesRouter.patch(
         message: "Note not found or you don't have permission to edit it",
       });
     }
-
-    console.log("existing note", existingNote);
 
     const result = await db.transaction(async (tx) => {
       const updatedNote = await tx
