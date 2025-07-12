@@ -1,14 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getNoteBySlugApi } from "@/api/notes";
-// import { Badge } from "@/components/ui/badge";
 import DOMPurify from "dompurify";
-import Header from "@/components/layout/Header";
-
+import { Badge } from "@/components/ui/badge";
+interface Note {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+  categories: Category[];
+}
+interface Category {
+  id: number;
+  name: string;
+  theme: string;
+}
 export default function NoteDetail() {
   const { slug } = useParams();
 
@@ -29,7 +41,7 @@ export default function NoteDetail() {
   if (isLoading) {
     return <div>loading....</div>;
   }
-  const note = noteData.result;
+  const note: Note = noteData.result;
   console.log("note", note);
 
   console.log("sanitized", DOMPurify.sanitize(note.content));
@@ -60,26 +72,26 @@ export default function NoteDetail() {
             <CardTitle className="text-2xl">{note.title}</CardTitle>
             <div className="flex items-center justify-between text-sm text-gray-500">
               <span>Created {formatDate(note.createdAt)}</span>
-              {note.updated_at !== note.created_at && (
+              {note.updatedAt !== note.createdAt && (
                 <span>Updated {formatDate(note.updatedAt)}</span>
               )}
             </div>
-            {/* {note.categories && note.categories.length > 0 && (
+            {note.categories && note.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-2">
                 {note.categories.map((category) => (
                   <Badge
                     key={category.id}
                     variant="secondary"
                     style={{
-                      backgroundColor: `${category.color}20`,
-                      color: category.color,
+                      backgroundColor: `${category.theme}`,
+                      color: "white",
                     }}
                   >
                     {category.name}
                   </Badge>
                 ))}
               </div>
-            )} */}
+            )}
           </div>
         </CardHeader>
         <CardContent>
