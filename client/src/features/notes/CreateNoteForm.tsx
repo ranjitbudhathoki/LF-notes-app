@@ -203,7 +203,7 @@ export default function CreateNoteForm() {
                             />
                             <label
                               htmlFor={`category-${category.id}`}
-                              className={`text-sm cursor-pointer bg-${category.theme} font-medium`}
+                              className={`text-sm cursor-pointer font-medium`}
                             >
                               {category.name}
                             </label>

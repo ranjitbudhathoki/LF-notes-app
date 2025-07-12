@@ -118,7 +118,7 @@ export default function EditNoteForm() {
           className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to All Notes
+          Back to Note
         </Link>
 
         <Card className="shadow-sm">
@@ -228,7 +228,7 @@ export default function EditNoteForm() {
                             />
                             <label
                               htmlFor={`category-${category.id}`}
-                              className={`text-sm cursor-pointer bg-${category.theme} font-medium`}
+                              className={`text-sm cursor-pointer font-medium`}
                             >
                               {category.name}
                             </label>

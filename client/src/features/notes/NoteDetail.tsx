@@ -77,14 +77,7 @@ export default function NoteDetail() {
             {note.categories && note.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-2">
                 {note.categories.map((category) => (
-                  <Badge
-                    key={category.id}
-                    variant="secondary"
-                    style={{
-                      backgroundColor: `${category.theme}`,
-                      color: "white",
-                    }}
-                  >
+                  <Badge key={category.id} variant="secondary">
                     {category.name}
                   </Badge>
                 ))}
