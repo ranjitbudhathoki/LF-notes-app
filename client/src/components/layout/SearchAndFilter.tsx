@@ -145,6 +145,7 @@ export default function SearchAndFilter({
           <Button
             className="w-full md:w-auto"
             onClick={() => navigate("/notes/new")}
+            disabled={categories.length === 0}
           >
             <Plus className="mr-2 h-4 w-4" />
             Create New Note

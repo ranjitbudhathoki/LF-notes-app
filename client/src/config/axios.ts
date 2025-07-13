@@ -19,7 +19,6 @@ _axios.interceptors.response.use(
     ) {
       isRedirecting = true;
 
-      // Show notification
       toast.error("Session expired. Please login again.");
 
       window.location.href = "/login";

@@ -15,7 +15,6 @@ import {
   PaginationLink,
   PaginationNext,
 } from "@/components/ui/pagination";
-import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { getCategoriesApi } from "@/api/categories";
 
@@ -176,10 +175,10 @@ export default function Notes() {
             No notes found
           </h3>
           <p className="text-sm text-gray-500 mb-4 px-4">
-            No notes match the selected categories. Try adjusting your filters
-            or create a new note.
+            {categories.length === 0
+              ? "Categories are empty. Please create a category first before creating notes."
+              : "No notes match the selected categories. Try adjusting your filters or create a new note."}
           </p>
-          <Button> Create New Note</Button>
         </div>
       )}
     </div>
