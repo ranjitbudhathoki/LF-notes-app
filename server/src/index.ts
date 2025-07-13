@@ -1,10 +1,8 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import authRouter from "./api/auth.js";
-import verifyAuth from "./utils/verifyAuth.js";
 import notesRouter from "./api/notes.js";
 import categoriesRouter from "./api/categories.js";
-import { HTTPException } from "hono/http-exception";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 const app = new Hono();

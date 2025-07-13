@@ -1,6 +1,5 @@
 import { Hono, type Context } from "hono";
 import db from "../services/drizzle.js";
-import { zValidator } from "@hono/zod-validator";
 import { loginSchema, registerSchema } from "../utils/validators/auth.js";
 import { users } from "../db/schema.js";
 import { eq, type InferSelectModel } from "drizzle-orm";
@@ -9,10 +8,32 @@ import jwt, { type SignOptions } from "jsonwebtoken";
 import { deleteCookie, setCookie } from "hono/cookie";
 import type { Variables } from "../utils/variables.js";
 import verifyAuth from "../utils/verifyAuth.js";
-
+import { type ZodSchema } from "zod/v4";
+import type { ValidationTargets } from "hono";
+import { zValidator as zv } from "@hono/zod-validator";
+import { HTTPException } from "hono/http-exception";
 const authRouter = new Hono<{ Variables: Variables }>();
 type User = InferSelectModel<typeof users>;
 type SafeUser = Omit<User, "password">;
+
+const zValidator = <
+  T extends ZodSchema,
+  Target extends keyof ValidationTargets,
+>(
+  target: Target,
+  schema: T,
+) =>
+  zv(target, schema, (result, c) => {
+    if (!result.success) {
+      return c.json({
+        message: "Validation failed",
+        errors: result.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+  });
 
 function signToken(id: number): string {
   const secret = process.env.JWT_SECRET;
