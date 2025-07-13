@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,42 +19,76 @@ interface Category {
   updatedAt: string;
 }
 
+interface SearchAndFilterProps {
+  categories: Category[];
+  onSearchChange: (searchTerm: string) => void;
+}
+
 export default function SearchAndFilter({
   categories,
-}: {
-  categories: Category[];
-}) {
+  onSearchChange,
+}: SearchAndFilterProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || "",
+  );
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "all",
   );
   const [sortBy, setSortBy] = useState(
-    searchParams.get("soryBy") || "updatedAt",
+    searchParams.get("sortBy") || "updatedAt",
   );
+
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
 
-  const updateSearchParams = (newCategory: string, newSortBy: string) => {
-    const params = new URLSearchParams();
-    if (newCategory && newCategory !== "all") {
-      params.set("category", newCategory);
-    }
-    if (newSortBy && newSortBy !== "updatedAt") {
-      params.set("sortBy", newSortBy);
-    }
-    setSearchParams(params);
-  };
+  const updateSearchParams = useCallback(
+    (newCategory: string, newSortBy: string, newSearch: string) => {
+      const params = new URLSearchParams();
+      if (newCategory && newCategory !== "all") {
+        params.set("category", newCategory);
+      }
+      if (newSortBy && newSortBy !== "updatedAt") {
+        params.set("sortBy", newSortBy);
+      }
+      if (newSearch) {
+        params.set("search", newSearch);
+      }
+      setSearchParams(params);
+    },
+    [setSearchParams],
+  );
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    updateSearchParams(value, sortBy);
   };
 
   const handleSortByChange = (value: string) => {
     setSortBy(value);
-    updateSearchParams(selectedCategory, value);
   };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+  };
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      updateSearchParams(selectedCategory, sortBy, searchTerm);
+      if (onSearchChange) {
+        onSearchChange(searchTerm);
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [
+    searchTerm,
+    selectedCategory,
+    sortBy,
+    onSearchChange,
+    updateSearchParams,
+  ]);
 
   return (
     <>
@@ -67,7 +101,7 @@ export default function SearchAndFilter({
               placeholder="Search notes..."
               className="w-full pl-9"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
 

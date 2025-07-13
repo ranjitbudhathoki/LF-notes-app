@@ -5,6 +5,7 @@ interface GetNotesPayload {
   limit?: number;
   category?: string;
   sortBy?: string;
+  search?: string;
 }
 
 interface CreateNotePayload {
@@ -18,8 +19,9 @@ export async function getNotesApi({
   limit = 10,
   category = "all",
   sortBy = "updatedAt",
+  search = "",
 }: GetNotesPayload) {
-  console.log("called");
+  console.log("called get notes");
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -30,6 +32,9 @@ export async function getNotesApi({
   }
   if (sortBy && sortBy !== "updatedAt") {
     params.append("sortBy", sortBy);
+  }
+  if (search) {
+    params.append("search", search);
   }
 
   console.log({ params });

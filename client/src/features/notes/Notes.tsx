@@ -39,6 +39,7 @@ interface Category {
 
 export default function Notes() {
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const limit = 10;
   const [searchParams] = useSearchParams();
   const categoryName = searchParams.get("category") || "all";
@@ -56,8 +57,15 @@ export default function Notes() {
         "all";
 
   const { data: notesData, isLoading } = useQuery({
-    queryKey: ["notes", page, limit, categoryId, sortBy],
-    queryFn: () => getNotesApi({ page, limit, category: categoryId, sortBy }),
+    queryKey: ["notes", page, limit, categoryId, sortBy, searchTerm],
+    queryFn: () =>
+      getNotesApi({
+        page,
+        limit,
+        category: categoryId,
+        sortBy,
+        search: searchTerm,
+      }),
     enabled: !isCategoryLoading,
   });
 
@@ -70,13 +78,14 @@ export default function Notes() {
 
   return (
     <div className="space-y-6">
-      <SearchAndFilter categories={categories} />
+      <SearchAndFilter categories={categories} onSearchChange={setSearchTerm} />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">All Notes</h2>
           <p className="text-sm text-gray-500">
             {meta.total}
             {meta.total === 1 ? "note" : "notes"}
+            {searchTerm && ` matching "${searchTerm}"`}
           </p>
         </div>
       </div>
