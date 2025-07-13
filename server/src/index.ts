@@ -20,12 +20,14 @@ app.onError((err, c) => {
   if (err.name === "TokenExpiredError") {
     return c.json(
       {
+        name: err.name,
         message: "Token has expired. Please login again",
       },
       401,
     );
   }
 
+  console.log("err.name", err);
   if (err.name === "JsonWebTokenError") {
     return c.json(
       {
