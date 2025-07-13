@@ -6,7 +6,10 @@ import notesRouter from "./api/notes.js";
 import categoriesRouter from "./api/categories.js";
 import { HTTPException } from "hono/http-exception";
 import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 const app = new Hono();
+
+app.use(logger());
 
 app.use(
   cors({
