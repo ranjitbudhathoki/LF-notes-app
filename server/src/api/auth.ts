@@ -50,10 +50,7 @@ function signToken(id: number): string {
 }
 
 function createAndSendToken(user: SafeUser, c: Context) {
-  const cookieExpiresDays = parseInt(
-    process.env.JWT_COOKIE_EXPIRES_IN || "7",
-    10,
-  );
+  const cookieExpiresDays = parseInt(process.env.JWT_COOKIE_EXPIRES_IN!);
   const token = signToken(user.id);
   setCookie(c, "jwt", token, {
     sameSite: "Lax",
