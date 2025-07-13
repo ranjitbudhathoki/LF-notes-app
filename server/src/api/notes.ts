@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import db from "../services/drizzle.js";
 import { noteCategories, notes } from "../db/schema.js";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, asc, desc, sql, exists } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
 import { zValidator } from "@hono/zod-validator";
@@ -11,7 +11,6 @@ import {
 } from "../utils/validators/notes.js";
 import { convert } from "url-slug";
 import z from "zod";
-
 const notesRouter = new Hono<{ Variables: Variables }>();
 
 const paginationSchema = z.object({
@@ -21,11 +20,57 @@ const paginationSchema = z.object({
 
 notesRouter.get("/", verifyAuth, async (c) => {
   const user = c.get("user");
-  const { page, limit: requestedLimit } = paginationSchema.parse(c.req.query());
+  const {
+    page,
+    limit: requestedLimit,
+    categoryId,
+    sortBy,
+  } = paginationSchema
+    .extend({
+      categoryId: z.string().optional(),
+      sortBy: z
+        .enum(["updatedAt", "createdAt", "titleAsc", "titleDesc"])
+        .optional(),
+    })
+    .parse(c.req.query());
+
+  console.log(c.req.query());
+
   const limit = Math.min(requestedLimit, 20);
   const offset = (page - 1) * limit;
+
+  let orderBy;
+  switch (sortBy) {
+    case "createdAt":
+      orderBy = [desc(notes.createdAt)];
+      break;
+    case "titleAsc":
+      orderBy = [asc(notes.title)];
+      break;
+    case "titleDesc":
+      orderBy = [desc(notes.title)];
+      break;
+    case "updatedAt":
+    default:
+      orderBy = [desc(notes.updatedAt)];
+      break;
+  }
+  let where = eq(notes.userId, user.id);
+  if (categoryId && categoryId !== "all") {
+    where = exists(
+      db
+        .select()
+        .from(noteCategories)
+        .where(
+          and(
+            eq(noteCategories.noteId, notes.id),
+            eq(noteCategories.categoryId, parseInt(categoryId!)),
+          ),
+        ),
+    );
+  }
   const data = await db.query.notes.findMany({
-    where: eq(notes.userId, user.id),
+    where,
     with: {
       noteCategories: {
         with: {
@@ -35,12 +80,13 @@ notesRouter.get("/", verifyAuth, async (c) => {
     },
     limit,
     offset,
+    orderBy,
   });
 
   const countResult = await db
     .select({ count: count() })
     .from(notes)
-    .where(eq(notes.userId, user.id))
+    .where(where)
     .get();
 
   const total = countResult?.count ?? 0;
