@@ -16,13 +16,34 @@ import {
 } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
-import { zValidator } from "@hono/zod-validator";
 import {
   createNoteSchema,
   updateNoteSchema,
 } from "../utils/validators/notes.js";
 import { convert } from "url-slug";
 import z from "zod";
+import { type ZodSchema } from "zod/v4";
+import type { ValidationTargets } from "hono";
+import { zValidator as zv } from "@hono/zod-validator";
+
+const zValidator = <
+  T extends ZodSchema,
+  Target extends keyof ValidationTargets,
+>(
+  target: Target,
+  schema: T,
+) =>
+  zv(target, schema, (result, c) => {
+    if (!result.success) {
+      return c.json({
+        message: "Validation failed",
+        errors: result.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+  });
 const notesRouter = new Hono<{ Variables: Variables }>();
 
 const filterSchema = z.object({

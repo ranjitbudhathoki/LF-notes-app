@@ -11,7 +11,6 @@ import verifyAuth from "../utils/verifyAuth.js";
 import { type ZodSchema } from "zod/v4";
 import type { ValidationTargets } from "hono";
 import { zValidator as zv } from "@hono/zod-validator";
-import { HTTPException } from "hono/http-exception";
 const authRouter = new Hono<{ Variables: Variables }>();
 type User = InferSelectModel<typeof users>;
 type SafeUser = Omit<User, "password">;

@@ -1,15 +1,36 @@
-import { Hono, type Context } from "hono";
+import { Hono } from "hono";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
 import db from "../services/drizzle.js";
 import { categories } from "../db/schema.js";
 import { and, eq, getTableColumns } from "drizzle-orm";
-import { zValidator } from "@hono/zod-validator";
 import {
   createCategorSchema,
   updateCategorySchema,
 } from "../utils/validators/categories.js";
-import { parse } from "hono/utils/cookie";
+
+import { type ZodSchema } from "zod/v4";
+import type { ValidationTargets } from "hono";
+import { zValidator as zv } from "@hono/zod-validator";
+
+const zValidator = <
+  T extends ZodSchema,
+  Target extends keyof ValidationTargets,
+>(
+  target: Target,
+  schema: T,
+) =>
+  zv(target, schema, (result, c) => {
+    if (!result.success) {
+      return c.json({
+        message: "Validation failed",
+        errors: result.error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+  });
 
 const categoriesRouter = new Hono<{ Variables: Variables }>();
 
