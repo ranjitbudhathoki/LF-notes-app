@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import { getCategoriesApi } from "@/api/categories";
+import { useNavigate, useSearchParams } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,32 +10,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Plus } from "lucide-react";
-import Loader from "../Loader";
+
 import CategoryManager from "@/features/categories/ManageCategories";
 interface Category {
   id: number;
   name: string;
-  theme: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export default function SearchAndFilter() {
+export default function SearchAndFilter({
+  categories,
+}: {
+  categories: Category[];
+}) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("updatedAt");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "all",
+  );
+  const [sortBy, setSortBy] = useState(
+    searchParams.get("soryBy") || "updatedAt",
+  );
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
 
-  const { data: categoriesData, isLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesApi,
-  });
+  const updateSearchParams = (newCategory: string, newSortBy: string) => {
+    const params = new URLSearchParams();
+    if (newCategory && newCategory !== "all") {
+      params.set("category", newCategory);
+    }
+    if (newSortBy && newSortBy !== "updatedAt") {
+      params.set("sortBy", newSortBy);
+    }
+    setSearchParams(params);
+  };
 
-  if (isLoading) return <Loader />;
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    updateSearchParams(value, sortBy);
+  };
 
-  const categories: Category[] = categoriesData.result;
-  console.log({ categories });
+  const handleSortByChange = (value: string) => {
+    setSortBy(value);
+    updateSearchParams(selectedCategory, value);
+  };
 
   return (
     <>
@@ -54,7 +71,7 @@ export default function SearchAndFilter() {
             />
           </div>
 
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
@@ -62,7 +79,7 @@ export default function SearchAndFilter() {
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
+                <SelectItem key={cat.id} value={cat.name}>
                   {cat.name}
                 </SelectItem>
               ))}
@@ -70,15 +87,15 @@ export default function SearchAndFilter() {
           </Select>
 
           <div className="flex gap-2 w-full md:w-auto">
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={handleSortByChange}>
               <SelectTrigger className="flex-1 min-w-[120px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="updatedAt">Last Modified</SelectItem>
                 <SelectItem value="createdAt">Created Date</SelectItem>
-                <SelectItem value="title">Title A-Z</SelectItem>
-                <SelectItem value="title">Title Z-A</SelectItem>
+                <SelectItem value="titleAsc">Title A-Z</SelectItem>
+                <SelectItem value="titleDesc">Title Z-A</SelectItem>
               </SelectContent>
             </Select>
           </div>

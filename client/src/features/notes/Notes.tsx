@@ -1,7 +1,7 @@
 import { getNotesApi } from "@/api/notes";
 import { useQuery } from "@tanstack/react-query";
 import DOMPurify from "dompurify";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { NoteActions } from "./NoteActions";
 import SearchAndFilter from "@/components/layout/SearchAndFilter";
 import Loader from "@/components/Loader";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
+import { getCategoriesApi } from "@/api/categories";
 
 interface Note {
   id: number;
@@ -32,18 +33,35 @@ interface Note {
 interface Category {
   id: number;
   name: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function Notes() {
   const [page, setPage] = useState(1);
   const limit = 10;
-
-  const { data: notesData, isLoading } = useQuery({
-    queryKey: ["notes", page, limit],
-    queryFn: () => getNotesApi({ page, limit }),
+  const [searchParams] = useSearchParams();
+  const categoryName = searchParams.get("category") || "all";
+  const sortBy = searchParams.get("sortBy") || "updatedAt";
+  const { data: categoriesData, isLoading: isCategoryLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategoriesApi,
   });
 
-  if (isLoading) {
+  const categories: Category[] = categoriesData?.result || [];
+  const categoryId =
+    categoryName === "all"
+      ? "all"
+      : categories.find((cat) => cat.name === categoryName)?.id?.toString() ||
+        "all";
+
+  const { data: notesData, isLoading } = useQuery({
+    queryKey: ["notes", page, limit, categoryId, sortBy],
+    queryFn: () => getNotesApi({ page, limit, category: categoryId, sortBy }),
+    enabled: !isCategoryLoading,
+  });
+
+  if (isLoading || isCategoryLoading) {
     return <Loader />;
   }
 
@@ -52,7 +70,7 @@ export default function Notes() {
 
   return (
     <div className="space-y-6">
-      <SearchAndFilter />
+      <SearchAndFilter categories={categories} />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">All Notes</h2>

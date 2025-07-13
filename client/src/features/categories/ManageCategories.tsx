@@ -22,7 +22,6 @@ import { useForm } from "react-hook-form";
 interface Category {
   id: number;
   name: string;
-  theme: string;
   createdAt: string;
   updatedAt: string;
 }

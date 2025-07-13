@@ -1,22 +1,44 @@
 import _axios from "@/config/axios";
 
-export async function getNotesApi({
-  page = 1,
-  limit = 10,
-}: {
+interface GetNotesPayload {
   page?: number;
   limit?: number;
-}) {
-  const { data } = await _axios.get("/notes", {
-    params: { page, limit },
-  });
-  return data;
+  category?: string;
+  sortBy?: string;
 }
+
 interface CreateNotePayload {
   title: string;
   content: string;
   categoryIds: number[];
 }
+
+export async function getNotesApi({
+  page = 1,
+  limit = 10,
+  category = "all",
+  sortBy = "updatedAt",
+}: GetNotesPayload) {
+  console.log("called");
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (category && category !== "all") {
+    params.append("categoryId", category);
+  }
+  if (sortBy && sortBy !== "updatedAt") {
+    params.append("sortBy", sortBy);
+  }
+
+  console.log({ params });
+  const { data } = await _axios.get("/notes", {
+    params,
+  });
+  return data;
+}
+
 export async function createNoteApi(payload: CreateNotePayload) {
   const { data } = await _axios.post("/notes", payload);
   return data;
