@@ -2,7 +2,7 @@ import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
 import { Navigate, Routes } from "react-router";
 import { Route } from "react-router";
-import HomePage from "./pages/Home";
+import Layout from "./pages/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageNotFound from "./pages/PageNotFound";
 import CreateNoteForm from "./features/notes/CreateNoteForm";
@@ -17,7 +17,7 @@ function App() {
         path="/notes"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <Layout />
           </ProtectedRoute>
         }
       >

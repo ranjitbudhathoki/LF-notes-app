@@ -21,7 +21,6 @@ export async function getNotesApi({
   sortBy = "updatedAt",
   search = "",
 }: GetNotesPayload) {
-  console.log("called get notes");
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
