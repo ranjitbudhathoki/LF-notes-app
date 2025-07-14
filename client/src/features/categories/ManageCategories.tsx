@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { XIcon, PencilIcon, PlusIcon } from "lucide-react";
+import { XIcon, PencilIcon, PlusIcon, CheckIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createCategoryApi,
@@ -19,6 +19,7 @@ import {
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import type { Category } from "@/config/types";
+import axios from "axios";
 
 interface CategoryManagerProps {
   isOpen: boolean;
@@ -44,9 +45,7 @@ export default function CategoryManager({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Inputs>({
-    defaultValues: { categoryName: "" },
-  });
+  } = useForm<Inputs>();
 
   const handleEditStart = (category: Category) => {
     setEditingCategoryId(category.id);
@@ -81,25 +80,49 @@ export default function CategoryManager({
       invalidate();
       reset();
     },
+    onError: (error: unknown) => {
+      console.log("error", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    },
   });
 
   const { mutate: deleteCategory, isPending: isDeleting } = useMutation({
     mutationFn: (categoryId: number) => deleteCategoryApi(categoryId),
     onSuccess: () => {
       toast.success("Category deleted successfully");
-
       invalidate();
       reset();
     },
+    onError: (error: unknown) => {
+      console.log("error", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    },
   });
 
-  const { mutate: editCategory } = useMutation({
+  const { mutate: editCategory, isPending: isEditing } = useMutation({
     mutationFn: (data: { id: number; name: string }) => editCategoryApi(data),
     onSuccess: () => {
       toast.success("Category updated successfully");
       invalidate();
       setEditingCategoryId(null);
       setEditingCategoryName("");
+      reset();
+    },
+
+    onError: (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
     },
   });
 
@@ -121,8 +144,8 @@ export default function CategoryManager({
                 {...register("categoryName", {
                   required: "Category name is required.",
                   minLength: {
-                    value: 1,
-                    message: "Category name must be at least 1 character.",
+                    value: 3,
+                    message: "Category name must be at least 3 character.",
                   },
                   maxLength: {
                     value: 10,
@@ -136,7 +159,7 @@ export default function CategoryManager({
               </Button>
             </div>
 
-            {errors.categoryName && (
+            {errors.categoryName && !editingCategoryId && (
               <p className="text-sm text-destructive">
                 {errors.categoryName.message}
               </p>
@@ -155,19 +178,24 @@ export default function CategoryManager({
                       key={category.id}
                     >
                       {editingCategoryId === category.id ? (
-                        <Input
-                          value={editingCategoryName}
-                          onChange={(e) => {
-                            setEditingCategoryName(e.target.value);
-                          }}
-                          onBlur={handleEditSave}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") handleEditSave();
-                            if (e.key === "Escape") setEditingCategoryId(null);
-                          }}
-                          className="flex-1 mr-2"
-                          autoFocus
-                        />
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Input
+                            value={editingCategoryName}
+                            onChange={(e) => {
+                              setEditingCategoryName(e.target.value);
+                            }}
+                            className="flex-1"
+                            autoFocus
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleEditSave}
+                            disabled={isEditing}
+                          >
+                            <CheckIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                       ) : (
                         <span className="flex-1">{category.name}</span>
                       )}
