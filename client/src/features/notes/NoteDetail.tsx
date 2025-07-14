@@ -42,6 +42,38 @@ export default function NoteDetail() {
   if (isLoading) {
     return <Loader />;
   }
+
+  if (!noteData || !noteData.result) {
+    return (
+      <div className="max-w-4xl mx-auto mt-4">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/notes">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to All Notes
+            </Link>
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <div className="space-y-4">
+              <div className="text-6xl font-bold text-gray-400">404</div>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Note Not Found
+              </h1>
+              <p className="text-gray-500 max-w-md mx-auto">
+                The note with slug "{slug}" doesn't exist or may have been
+                deleted.
+              </p>
+              <Button asChild className="mt-4">
+                <Link to="/notes">View All Notes</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const note: Note = noteData.result;
 
   return (
