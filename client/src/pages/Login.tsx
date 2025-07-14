@@ -27,8 +27,8 @@ export default function LoginPage() {
     onSuccess: (data) => {
       setIsAuthenticated(true);
       setUser(data.result);
-      toast.success("Login successful");
-      navigate("/notes");
+      const fromPath = location.state?.from || "/notes";
+      navigate(fromPath, { replace: true });
     },
 
     onError: (error: unknown) => {
@@ -41,7 +41,7 @@ export default function LoginPage() {
   });
 
   if (isAuthenticated) {
-    const fromPath = location.state?.path || "/notes";
+    const fromPath = location.state?.from || "/notes";
     return <Navigate to={fromPath} replace />;
   }
 
