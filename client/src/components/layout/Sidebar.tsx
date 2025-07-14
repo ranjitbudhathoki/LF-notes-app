@@ -21,28 +21,15 @@ import {
 import type { Category } from "@/config/types";
 import { Separator } from "@/components/ui/separator";
 import { useSearchParams } from "react-router";
-
-// interface SidebarProps {
-//   categories: Category[];
-//   selectedCategory: string;
-//   onSelectCategory: (categoryId: string) => void;
-//   onCreateCategory: (name: string, color: string) => void;
-//   onNewNote: () => void;
-//   onLogout: () => void;
-//   searchQuery: string;
-//   onSearchChange: (query: string) => void;
-//   sortBy: "date" | "title" | "modified";
-//   onSortChange: (sort: "date" | "title" | "modified") => void;
-//   searchInputRef: React.RefObject<HTMLInputElement>;
-//   isMobile?: boolean;
-// }
+import { useQuery } from "@tanstack/react-query";
+import { getCategoriesApi } from "@/api/categories";
+import MiniSpinner from "../MiniSpinner";
 
 interface SidebarProps {
-  categories: Category[];
   isMobile?: boolean;
 }
 
-const Sidebar = ({ categories, isMobile }: SidebarProps) => {
+const Sidebar = ({ isMobile }: SidebarProps) => {
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
@@ -51,6 +38,11 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
   const searchTerm = searchParams.get("search") || "";
   const selectedCategory = searchParams.get("category") || "";
   const sortBy = searchParams.get("sortBy") || "updatedAt";
+
+  const { data: categoriesData, isLoading: isCategoryLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategoriesApi,
+  });
 
   const handleSortChange = (sort: string) => {
     searchParams.set("sortBy", sort);
@@ -82,6 +74,11 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
     "#84cc16",
   ];
 
+  if (isCategoryLoading) {
+    return <MiniSpinner />;
+  }
+
+  const categories: Category[] = categoriesData.result || [];
   return (
     <div
       className={`bg-sidebar border-r border-sidebar-border flex flex-col ${isMobile ? "h-full" : "h-screen w-80"}`}

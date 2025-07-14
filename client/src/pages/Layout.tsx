@@ -1,10 +1,6 @@
-import { getCategoriesApi } from "@/api/categories";
-import { getNotesApi } from "@/api/notes";
 import Sidebar from "@/components/layout/Sidebar";
-import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useQuery } from "@tanstack/react-query";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Outlet } from "react-router";
@@ -12,28 +8,6 @@ import { Outlet } from "react-router";
 export default function Layout() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const { data: categoriesData, isLoading: isCategoryLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategoriesApi,
-  });
-
-  const { data: notesData, isLoading } = useQuery({
-    queryKey: ["notes"],
-    queryFn: () => getNotesApi({}),
-    // getNotesApi({
-    //   page,
-    //   limit,
-    //   category: categoryId,
-    //   sortBy,
-    //   search: searchTerm,
-    // }),
-
-    enabled: !isCategoryLoading,
-  });
-  if (isCategoryLoading) {
-    return <Loader />;
-  }
-  const categories = categoriesData.result || [];
   return (
     <main className="min-h-screen w-full bg-gray-50">
       {/* Mobile header */}
@@ -45,7 +19,7 @@ export default function Layout() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-80">
-            <Sidebar categories={categories} isMobile={true} />
+            <Sidebar isMobile={true} />
           </SheetContent>
         </Sheet>
         <h1 className="text-lg font-semibold">Notes</h1>
@@ -58,7 +32,7 @@ export default function Layout() {
       <div className="flex h-screen pt-16 md:pt-0">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
-          <Sidebar categories={categories} isMobile={false} />
+          <Sidebar isMobile={false} />
         </div>
 
         {/* Main content outlet */}

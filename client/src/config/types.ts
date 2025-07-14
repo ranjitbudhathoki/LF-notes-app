@@ -2,6 +2,7 @@ export interface Note {
   id: number;
   title: string;
   slug: string;
+  isPinned: boolean;
   content: string;
   userId: number;
   createdAt: string;

@@ -16,24 +16,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Pin, Star } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteNoteApi } from "@/api/notes";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import type { Note } from "@/config/types";
 
-interface NoteActionsProps {
-  noteSlug: string;
-}
-
-export function NoteActions({ noteSlug }: NoteActionsProps) {
+export function NoteActions({ note }: { note: Note }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { mutate: deleteNote, isPending: isDeleting } = useMutation({
-    mutationFn: () => deleteNoteApi(noteSlug!),
+    mutationFn: () => deleteNoteApi(note.slug!),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["notes"],
@@ -58,7 +55,22 @@ export function NoteActions({ noteSlug }: NoteActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => navigate(`/notes/${noteSlug}/edit`)}>
+          <DropdownMenuItem>
+            {note.isPinned ? (
+              <>
+                <Pin className="w-4 h-4 mr-2" />
+                Unpin
+              </>
+            ) : (
+              <>
+                <Star className="w-4 h-4 mr-2" />
+                Pin
+              </>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => navigate(`/notes/${note.slug}/edit`)}
+          >
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>
