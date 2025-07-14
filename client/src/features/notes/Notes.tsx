@@ -6,7 +6,7 @@ import { NoteActions } from "./NoteActions";
 import SearchAndFilter from "@/components/layout/SearchAndFilter";
 import Loader from "@/components/Loader";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -50,6 +50,10 @@ export default function Notes() {
       }),
     enabled: !isCategoryLoading,
   });
+
+  useEffect(() => {
+    setPage(1);
+  }, [categoryId, searchTerm]);
 
   if (isLoading || isCategoryLoading) {
     return <Loader />;
