@@ -1,4 +1,5 @@
 import { getCategoriesApi } from "@/api/categories";
+import { getNotesApi } from "@/api/notes";
 import Sidebar from "@/components/layout/Sidebar";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
@@ -16,41 +17,54 @@ export default function Layout() {
     queryFn: getCategoriesApi,
   });
 
+  const { data: notesData, isLoading } = useQuery({
+    queryKey: ["notes"],
+    queryFn: () => getNotesApi({}),
+    // getNotesApi({
+    //   page,
+    //   limit,
+    //   category: categoryId,
+    //   sortBy,
+    //   search: searchTerm,
+    // }),
+
+    enabled: !isCategoryLoading,
+  });
   if (isCategoryLoading) {
     return <Loader />;
   }
   const categories = categoriesData.result || [];
-
   return (
     <main className="min-h-screen w-full bg-gray-50">
-      <div className="flex h-screen bg-background">
-        <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
-          <Sheet
-            open={isMobileSidebarOpen}
-            onOpenChange={setIsMobileSidebarOpen}
-          >
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80">
-              <Sidebar categories={categories} isMobile={true} />
-            </SheetContent>
-          </Sheet>
+      {/* Mobile header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
+        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-80">
+            <Sidebar categories={categories} isMobile={true} />
+          </SheetContent>
+        </Sheet>
+        <h1 className="text-lg font-semibold">Notes</h1>
+        <Button variant="default" size="sm">
+          New Note
+        </Button>
+      </div>
 
-          <h1 className="text-lg font-semibold">Notes</h1>
-          <Button variant="default" size="sm">
-            New Note
-          </Button>
-        </div>
-
+      {/* Main content area */}
+      <div className="flex h-screen pt-16 md:pt-0">
+        {/* Desktop sidebar */}
         <div className="hidden md:block">
           <Sidebar categories={categories} isMobile={false} />
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6">
-        <Outlet />
+
+        {/* Main content outlet */}
+        <div className="flex-1 overflow-auto ">
+          <Outlet />
+        </div>
       </div>
     </main>
   );

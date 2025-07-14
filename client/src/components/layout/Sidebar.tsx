@@ -20,6 +20,7 @@ import {
 
 import type { Category } from "@/config/types";
 import { Separator } from "@/components/ui/separator";
+import { useSearchParams } from "react-router";
 
 // interface SidebarProps {
 //   categories: Category[];
@@ -45,6 +46,30 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const searchTerm = searchParams.get("search") || "";
+  const selectedCategory = searchParams.get("category") || "";
+  const sortBy = searchParams.get("sortBy") || "updatedAt";
+
+  const handleSortChange = (sort: string) => {
+    searchParams.set("sortBy", sort);
+    setSearchParams(searchParams);
+  };
+
+  const handleSelectCategory = (category: string | number) => {
+    if (category === "all") {
+      searchParams.delete("category");
+    } else {
+      searchParams.set("category", String(category));
+    }
+    setSearchParams(searchParams);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    searchParams.set("search", e.target.value);
+    setSearchParams(searchParams);
+  };
 
   const predefinedColors = [
     "#3b82f6",
@@ -61,7 +86,6 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
     <div
       className={`bg-sidebar border-r border-sidebar-border flex flex-col ${isMobile ? "h-full" : "h-screen w-80"}`}
     >
-      {/* Header */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -77,7 +101,6 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
           )}
         </div>
 
-        {/* New Note Button */}
         <Button className="w-full mb-4" size={isMobile ? "default" : "sm"}>
           <Plus className="w-4 h-4 mr-2" />
           New Note
@@ -86,20 +109,27 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
         {/* Search */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input type="text" placeholder="Search notes..." className="pl-10" />
+          <Input
+            type="text"
+            placeholder="Search notes..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
         </div>
 
         {/* Sort */}
         <div className="flex items-center gap-2">
           <SortAsc className="w-4 h-4 text-muted-foreground" />
-          <Select>
+          <Select value={sortBy} onValueChange={handleSortChange}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="modified">Last Modified</SelectItem>
-              <SelectItem value="date">Date Created</SelectItem>
-              <SelectItem value="title">Title</SelectItem>
+              <SelectItem value="updatedAt">Last Modified</SelectItem>
+              <SelectItem value="createdAt">Date Created</SelectItem>
+              <SelectItem value="titleAsc">Title (A-Z)</SelectItem>
+              <SelectItem value="titleDesc">Title (Z-A)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -169,7 +199,12 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
 
         <div className="space-y-1">
           <button
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors `}
+            onClick={() => handleSelectCategory("all")}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+              selectedCategory === "all"
+                ? "bg-gray-200 text-sidebar-accent-foreground"
+                : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
+            }`}
           >
             <FileText className="w-4 h-4" />
             <span className="flex-1">All Notes</span>
@@ -177,9 +212,12 @@ const Sidebar = ({ categories, isMobile }: SidebarProps) => {
 
           {categories.map((category) => (
             <button
+              onClick={() => handleSelectCategory(category.id)}
               key={category.id}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors
-                  "hover:bg-sidebar-accent/50 text-sidebar-foreground"
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                selectedCategory === String(category.id)
+                  ? "bg-gray-200 text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
               }`}
             >
               <div
