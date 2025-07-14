@@ -20,10 +20,14 @@ import {
 
 import type { Category } from "@/config/types";
 import { Separator } from "@/components/ui/separator";
-import { useSearchParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useNavigate, useSearchParams } from "react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCategoriesApi } from "@/api/categories";
 import MiniSpinner from "../MiniSpinner";
+import { logoutApi } from "@/api/auth";
+import useAuth from "@/hooks/useAuth";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 interface SidebarProps {
   isMobile?: boolean;
@@ -33,6 +37,8 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
+  const { setUser, setIsAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchTerm = searchParams.get("search") || "";
@@ -74,6 +80,23 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
     "#84cc16",
   ];
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: logoutApi,
+    onSuccess: (data) => {
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate("/login");
+      toast.success(data.message);
+    },
+    onError: (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    },
+  });
+
   if (isCategoryLoading) {
     return <MiniSpinner />;
   }
@@ -92,7 +115,12 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             </h2>
           </div>
           {!isMobile && (
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={isPending}
+              onClick={() => mutate()}
+            >
               <LogOut className="w-4 h-4" />
             </Button>
           )}
@@ -232,7 +260,12 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
         <>
           <Separator />
           <div className="p-4">
-            <Button variant="ghost" className="w-full justify-start">
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              disabled={isPending}
+              onClick={() => mutate()}
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
