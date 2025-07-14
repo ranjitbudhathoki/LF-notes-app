@@ -32,7 +32,8 @@ export default function SignupPage() {
       setIsAuthenticated(true);
       setUser(data.result);
       toast.success("Signup successful!");
-      navigate("/notes");
+      const fromPath = location.state?.from || "/notes";
+      navigate(fromPath, { replace: true });
     },
     onError: (error: unknown) => {
       if (axios.isAxiosError(error)) {
