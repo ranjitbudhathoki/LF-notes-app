@@ -105,9 +105,13 @@ export default function Notes() {
                         })}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {formatDistanceToNow(new Date(note.createdAt), {
-                          addSuffix: true,
-                        })}
+                        {sortBy === "createdAt"
+                          ? formatDistanceToNow(new Date(note.createdAt), {
+                              addSuffix: true,
+                            })
+                          : formatDistanceToNow(new Date(note.updatedAt), {
+                              addSuffix: true,
+                            })}
                       </div>
                     </div>
                   </div>
