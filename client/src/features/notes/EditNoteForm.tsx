@@ -14,14 +14,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
 import { useEffect } from "react";
-
-interface Category {
-  id: number;
-  name: string;
-  theme: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Category } from "@/config/types";
 
 interface Inputs {
   title: string;

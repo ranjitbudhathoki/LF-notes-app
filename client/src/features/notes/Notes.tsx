@@ -17,24 +17,7 @@ import {
 } from "@/components/ui/pagination";
 import { FileText } from "lucide-react";
 import { getCategoriesApi } from "@/api/categories";
-
-interface Note {
-  id: number;
-  title: string;
-  slug: string;
-  content: string;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
-  categories: Category[];
-}
-
-interface Category {
-  id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Category, Note } from "@/config/types";
 
 export default function Notes() {
   const [page, setPage] = useState(1);

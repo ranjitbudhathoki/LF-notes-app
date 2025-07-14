@@ -18,13 +18,7 @@ import {
 } from "@/api/categories";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
-
-interface Category {
-  id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Category } from "@/config/types";
 
 interface CategoryManagerProps {
   isOpen: boolean;

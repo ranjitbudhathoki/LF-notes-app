@@ -7,21 +7,8 @@ import { getNoteBySlugApi } from "@/api/notes";
 import DOMPurify from "dompurify";
 import { Badge } from "@/components/ui/badge";
 import Loader from "@/components/Loader";
-interface Note {
-  id: number;
-  title: string;
-  slug: string;
-  content: string;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
-  categories: Category[];
-}
-interface Category {
-  id: number;
-  name: string;
-  theme: string;
-}
+import type { Note } from "@/config/types";
+
 export default function NoteDetail() {
   const { slug } = useParams();
 

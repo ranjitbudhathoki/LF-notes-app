@@ -13,14 +13,7 @@ import { createNoteApi } from "@/api/notes";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
-
-interface Category {
-  id: number;
-  name: string;
-  theme: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Category } from "@/config/types";
 
 interface Inputs {
   title: string;
@@ -72,10 +65,11 @@ export default function CreateNoteForm() {
     return <Loader />;
   }
 
+  const categories: Category[] = categoriesData?.data || [];
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     mutate(data);
   };
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
@@ -184,7 +178,7 @@ export default function CreateNoteForm() {
                     }}
                     render={({ field }) => (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {categoriesData.result.map((category: Category) => (
+                        {categories.map((category) => (
                           <div
                             key={category.id}
                             className="flex items-center space-x-2"
