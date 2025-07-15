@@ -10,13 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 import type { Category } from "@/config/types";
 import { Separator } from "@/components/ui/separator";
@@ -28,15 +21,14 @@ import { logoutApi } from "@/api/auth";
 import useAuth from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import axios from "axios";
+import CategoryManager from "@/features/categories/ManageCategories";
 
 interface SidebarProps {
   isMobile?: boolean;
 }
 
 const Sidebar = ({ isMobile }: SidebarProps) => {
-  const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const { setUser, setIsAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -69,17 +61,6 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
     setSearchParams(searchParams);
   };
 
-  const predefinedColors = [
-    "#3b82f6",
-    "#ef4444",
-    "#10b981",
-    "#f59e0b",
-    "#8b5cf6",
-    "#ec4899",
-    "#06b6d4",
-    "#84cc16",
-  ];
-
   const { mutate, isPending } = useMutation({
     mutationFn: logoutApi,
     onSuccess: (data) => {
@@ -102,6 +83,9 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
   }
 
   const categories: Category[] = categoriesData.result || [];
+
+  console.log("selected ", selectedCategory);
+
   return (
     <div
       className={`bg-sidebar border-r border-sidebar-border flex flex-col ${isMobile ? "h-full" : "h-screen w-80"}`}
@@ -171,59 +155,14 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             <Filter className="w-4 h-4" />
             Categories
           </Label>
-          <Dialog
-            open={isCreateCategoryOpen}
-            onOpenChange={setIsCreateCategoryOpen}
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCategoryManagerOpen(true)}
           >
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Plus className="w-4 h-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Create New Category</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="category-name">Name</Label>
-                  <Input
-                    id="category-name"
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    placeholder="Category name"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category-color">Color</Label>
-                  <div className="flex gap-2 mt-2">
-                    {predefinedColors.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setNewCategoryColor(color)}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          newCategoryColor === color
-                            ? "border-foreground"
-                            : "border-transparent"
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsCreateCategoryOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button>Create</Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+            <Plus className="w-4 h-4" />
+          </Button>
         </div>
 
         <div className="space-y-1">
@@ -231,7 +170,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             onClick={() => handleSelectCategory("all")}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
               selectedCategory === "all"
-                ? "bg-gray-200 text-sidebar-accent-foreground"
+                ? "bg-red-200 text-sidebar-accent-foreground"
                 : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
             }`}
           >
@@ -240,21 +179,25 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
           </button>
 
           {categories.map((category) => (
-            <button
-              onClick={() => handleSelectCategory(category.id)}
+            <div
               key={category.id}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group ${
                 selectedCategory === String(category.id)
                   ? "bg-gray-200 text-sidebar-accent-foreground"
                   : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
               }`}
             >
-              <div
-                className="w-4 h-4 rounded-full"
-                // style={{ backgroundColor: category.color }}
-              />
-              <span className="flex-1 truncate">{category.name}</span>
-            </button>
+              <button
+                onClick={() => handleSelectCategory(category.id)}
+                className="flex items-center gap-3 flex-1 text-left"
+              >
+                <div
+                  className="w-4 h-4 rounded-full "
+                  style={{ backgroundColor: category.theme }}
+                />
+                <span className="flex-1 truncate">{category.name}</span>
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -276,6 +219,13 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
           </div>
         </>
       )}
+
+      {/* Category Manager Dialog */}
+      <CategoryManager
+        isOpen={isCategoryManagerOpen}
+        onClose={() => setIsCategoryManagerOpen(false)}
+        categories={categories}
+      />
     </div>
   );
 };

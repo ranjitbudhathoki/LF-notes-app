@@ -5,8 +5,19 @@ export async function getCategoriesApi() {
   return data;
 }
 
-export async function createCategoryApi(categoryName: string) {
-  const { data } = await _axios.post("/categories", { name: categoryName });
+interface CreateCategoryParams {
+  categoryName: string;
+  theme: string;
+}
+
+export async function createCategoryApi({
+  categoryName,
+  theme,
+}: CreateCategoryParams) {
+  const { data } = await _axios.post("/categories", {
+    name: categoryName,
+    theme,
+  });
   return data;
 }
 

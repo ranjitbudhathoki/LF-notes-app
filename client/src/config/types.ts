@@ -13,6 +13,7 @@ export interface Note {
 export interface Category {
   id: number;
   name: string;
+  theme: string;
   createdAt: string;
   updatedAt: string;
 }

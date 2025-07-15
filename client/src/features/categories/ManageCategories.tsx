@@ -9,7 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { XIcon, PencilIcon, PlusIcon, CheckIcon } from "lucide-react";
+import {
+  XIcon,
+  PencilIcon,
+  CheckIcon,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createCategoryApi,
@@ -17,18 +24,17 @@ import {
   editCategoryApi,
 } from "@/api/categories";
 import toast from "react-hot-toast";
-import { useForm } from "react-hook-form";
 import type { Category } from "@/config/types";
 import axios from "axios";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 interface CategoryManagerProps {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
 }
-interface Inputs {
-  categoryName: string;
-}
+
 export default function CategoryManager({
   isOpen,
   onClose,
@@ -39,13 +45,21 @@ export default function CategoryManager({
   );
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
+
   const queryClient = useQueryClient();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<Inputs>();
+
+  const predefinedColors = [
+    "#3b82f6",
+    "#ef4444",
+    "#10b981",
+    "#f59e0b",
+    "#8b5cf6",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
+  ];
 
   const handleEditStart = (category: Category) => {
     setEditingCategoryId(category.id);
@@ -69,16 +83,24 @@ export default function CategoryManager({
     setDeleteTarget(null);
   };
 
-  const onSubmit = (data: Inputs) => {
-    addCategory(data.categoryName.trim());
+  const handleCreateCategory = () => {
+    if (newCategoryName.trim()) {
+      addCategory();
+    }
   };
 
   const { mutate: addCategory, isPending: isAdding } = useMutation({
-    mutationFn: (categoryName: string) => createCategoryApi(categoryName),
+    mutationFn: () =>
+      createCategoryApi({
+        categoryName: newCategoryName.trim(),
+        theme: newCategoryColor,
+      }),
     onSuccess: () => {
       toast.success("Category created successfully");
       invalidate();
-      reset();
+
+      setNewCategoryName("");
+      setNewCategoryColor("#3b82f6");
     },
     onError: (error: unknown) => {
       console.log("error", error);
@@ -95,7 +117,6 @@ export default function CategoryManager({
     onSuccess: () => {
       toast.success("Category deleted successfully");
       invalidate();
-      reset();
     },
     onError: (error: unknown) => {
       console.log("error", error);
@@ -114,9 +135,7 @@ export default function CategoryManager({
       invalidate();
       setEditingCategoryId(null);
       setEditingCategoryName("");
-      reset();
     },
-
     onError: (error: unknown) => {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Something went wrong");
@@ -129,100 +148,163 @@ export default function CategoryManager({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Manage Categories</DialogTitle>
             <DialogDescription>
               Add, edit, or delete your note categories.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-3">
-            <div className="flex items-center space-x-2">
-              <Input
-                id="new-category"
-                placeholder="New category name"
-                {...register("categoryName", {
-                  required: "Category name is required.",
-                  minLength: {
-                    value: 3,
-                    message: "Category name must be at least 3 character.",
-                  },
-                  maxLength: {
-                    value: 10,
-                    message: "Category name cannot exceed 10 characters.",
-                  },
-                })}
-                className="flex-1"
-              />
-              <Button size="icon" type="submit" disabled={isAdding}>
-                <PlusIcon className="h-4 w-4" />
-              </Button>
+
+          <div className="space-y-6">
+            {/* Create New Category Section */}
+            <div className="space-y-4">
+              <div className="space-y-3 m">
+                <div>
+                  <Label htmlFor="category-name">Category Name</Label>
+                  <Input
+                    id="category-name"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Enter category name"
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="category-color">Color</Label>
+                  <div className="flex gap-2 mt-2">
+                    {predefinedColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setNewCategoryColor(color)}
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          newCategoryColor === color
+                            ? "border-foreground scale-110"
+                            : "border-transparent hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleCreateCategory}
+                  disabled={isAdding || !newCategoryName.trim()}
+                  className="w-full"
+                >
+                  {isAdding ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Category
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
-            {errors.categoryName && !editingCategoryId && (
-              <p className="text-sm text-destructive">
-                {errors.categoryName.message}
-              </p>
-            )}
+            <Separator />
 
-            <div className="max-h-60 overflow-y-auto">
-              {categories.length === 0 ? (
-                <p className="text-center text-muted-foreground">
-                  No categories added yet.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {categories.map((category) => (
-                    <li
-                      className="flex items-center justify-between rounded-md bg-muted p-2"
-                      key={category.id}
-                    >
-                      {editingCategoryId === category.id ? (
-                        <div className="flex items-center space-x-2 flex-1">
-                          <Input
-                            value={editingCategoryName}
-                            onChange={(e) => {
-                              setEditingCategoryName(e.target.value);
-                            }}
-                            className="flex-1"
-                            autoFocus
+            {/* Existing Categories Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Existing Categories</h3>
+              <div className="max-h-60 overflow-y-auto">
+                {categories.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    No categories added yet.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {categories.map((category) => (
+                      <div
+                        className="flex items-center justify-between rounded-md bg-muted p-3"
+                        key={category.id}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-4 h-4 rounded-full"
+                            style={{ backgroundColor: category.theme }}
                           />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleEditSave}
-                            disabled={isEditing}
-                          >
-                            <CheckIcon className="h-4 w-4" />
-                          </Button>
+
+                          {editingCategoryId === category.id ? (
+                            <Input
+                              value={editingCategoryName}
+                              onChange={(e) =>
+                                setEditingCategoryName(e.target.value)
+                              }
+                              className="flex-1"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleEditSave();
+                                }
+                                if (e.key === "Escape") {
+                                  setEditingCategoryId(null);
+                                  setEditingCategoryName("");
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span className="font-medium">{category.name}</span>
+                          )}
                         </div>
-                      ) : (
-                        <span className="flex-1">{category.name}</span>
-                      )}
-                      <div className="flex space-x-1">
-                        {editingCategoryId !== category.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditStart(category)}
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteTarget(category)}
-                        >
-                          <XIcon className="h-4 w-4" />
-                        </Button>
+
+                        <div className="flex items-center gap-1">
+                          {editingCategoryId === category.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleEditSave}
+                                disabled={isEditing}
+                              >
+                                <CheckIcon className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingCategoryId(null);
+                                  setEditingCategoryName("");
+                                }}
+                              >
+                                <XIcon className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditStart(category)}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDeleteTarget(category)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </form>
+          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
               Close
@@ -231,14 +313,15 @@ export default function CategoryManager({
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Category</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <strong>{deleteTarget?.name}</strong>? This action is
-              irreversible.
+              <strong>{deleteTarget?.name}</strong>? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -250,7 +333,14 @@ export default function CategoryManager({
               onClick={confirmDeleteCategory}
               disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

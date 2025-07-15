@@ -70,6 +70,8 @@ export default function NoteDetail() {
   }
   const note: Note = noteData.result;
 
+  console.log("notes", note);
+
   return (
     <div className="max-w-7xl space-y-6 mx-auto mt-4 ">
       <div className="flex items-center justify-between">
@@ -103,7 +105,15 @@ export default function NoteDetail() {
             {note.categories && note.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-2">
                 {note.categories.map((category) => (
-                  <Badge key={category.id} variant="secondary">
+                  <Badge
+                    key={category.id}
+                    variant="secondary"
+                    style={{
+                      backgroundColor: `${category.theme}20`,
+                      color: category.theme,
+                      borderColor: `${category.theme}40`,
+                    }}
+                  >
                     {category.name}
                   </Badge>
                 ))}

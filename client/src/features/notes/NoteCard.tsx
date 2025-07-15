@@ -84,11 +84,11 @@ const NoteCard = ({ note }: { note: Note }) => {
                 <Badge
                   key={category.id}
                   className="text-xs px-2 py-0.5 "
-                  // style={{
-                  //   backgroundColor: `${category.color}20`,
-                  //   color: category.color,
-                  //   borderColor: `${category.color}40`,
-                  // }}
+                  style={{
+                    backgroundColor: `${category.theme}20`,
+                    color: category.theme,
+                    borderColor: `${category.theme}40`,
+                  }}
                 >
                   {category.name}
                 </Badge>
