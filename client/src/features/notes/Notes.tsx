@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pin, FileText, Tag } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,10 @@ const Notes = () => {
   const search = searchParams.get("search") || "";
   const categoryId = searchParams.get("category") || "all";
   const sortBy = searchParams.get("sortBy") || "updatedAt";
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryId, sortBy]);
 
   const { data: notesData, isLoading } = useQuery({
     queryKey: ["notes", currentPage, categoryId, sortBy, search],

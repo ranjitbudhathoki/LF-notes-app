@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Plus, LogOut, Filter, SortAsc, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,10 +37,32 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
   const selectedCategory = searchParams.get("category") || "";
   const sortBy = searchParams.get("sortBy") || "updatedAt";
 
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
   const { data: categoriesData, isLoading: isCategoryLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesApi,
   });
+
+  useEffect(() => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (localSearchTerm.trim()) {
+        searchParams.set("search", localSearchTerm);
+      } else {
+        searchParams.delete("search");
+      }
+      setSearchParams(searchParams);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [localSearchTerm, searchParams, setSearchParams]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearchTerm(e.target.value);
+  };
 
   const handleSortChange = (sort: string) => {
     searchParams.set("sortBy", sort);
@@ -53,11 +75,6 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
     } else {
       searchParams.set("category", String(category));
     }
-    setSearchParams(searchParams);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    searchParams.set("search", e.target.value);
     setSearchParams(searchParams);
   };
 
@@ -126,7 +143,7 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
             type="text"
             placeholder="Search notes..."
             className="pl-10"
-            value={searchTerm}
+            value={localSearchTerm}
             onChange={handleSearchChange}
           />
         </div>
