@@ -161,6 +161,7 @@ notesRouter.get("/", verifyAuth, async (c) => {
         return {
           name: nc.category.name,
           id: nc.category.id,
+          theme: nc.category.theme,
         };
       }),
     }));
@@ -224,6 +225,7 @@ notesRouter.get("/:slug", verifyAuth, async (c) => {
       return {
         name: nc.category.name,
         id: nc.category.id,
+        theme: nc.category.theme,
       };
     }),
   };

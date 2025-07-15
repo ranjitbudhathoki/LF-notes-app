@@ -1,0 +1,1 @@
+ALTER TABLE `categories` ADD `theme` text NOT NULL;

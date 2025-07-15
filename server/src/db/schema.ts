@@ -32,6 +32,7 @@ export const notes = sqliteTable("notes", {
 export const categories = sqliteTable("categories", {
   id: int().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
+  theme: text().notNull(),
   userId: int()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

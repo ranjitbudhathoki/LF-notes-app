@@ -22,6 +22,7 @@ const zValidator = <
 ) =>
   zv(target, schema, (result, c) => {
     if (!result.success) {
+      c.status(400);
       return c.json({
         message: "Validation failed",
         errors: result.error.issues.map((issue) => ({
@@ -80,16 +81,16 @@ categoriesRouter.post(
   verifyAuth,
   zValidator("json", createCategorSchema),
   async (c) => {
-    const { name } = c.req.valid("json");
+    const { name, theme } = c.req.valid("json");
     const user = c.get("user");
 
     const data = await db
       .insert(categories)
-      .values({ name, userId: user.id })
+      .values({ name, theme, userId: user.id })
       .returning({
         id: categories.id,
         name: categories.name,
-
+        theme: categories.theme,
         createdAt: categories.createdAt,
         updatedAt: categories.updatedAt,
       })
