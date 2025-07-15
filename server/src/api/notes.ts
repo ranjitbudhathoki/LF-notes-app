@@ -97,7 +97,9 @@ notesRouter.get("/", verifyAuth, async (c) => {
         break;
     }
 
-    let whereConditions: any[] = [eq(notes.userId, user.id)];
+    let whereConditions: any[] = [
+      and(eq(notes.userId, user.id), eq(notes.isPinned, false)),
+    ];
     if (search) {
       const searchPattern = `%${search}%`;
       whereConditions.push(
@@ -182,6 +184,138 @@ notesRouter.get("/", verifyAuth, async (c) => {
       {
         success: false,
         error: e,
+      },
+      500,
+    );
+  }
+});
+
+notesRouter.get("/pinned", verifyAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const { categoryId } = filterSchema.parse(c.req.query());
+
+    console.log(c.req.query());
+
+    let whereConditions: any[] = [
+      and(eq(notes.userId, user.id), eq(notes.isPinned, true)),
+    ];
+    if (categoryId && categoryId !== "all") {
+      whereConditions.push(
+        exists(
+          db
+            .select()
+            .from(noteCategories)
+            .where(
+              and(
+                eq(noteCategories.noteId, notes.id),
+                eq(noteCategories.categoryId, parseInt(categoryId)),
+              ),
+            ),
+        ),
+      );
+    }
+
+    const where = and(...whereConditions);
+
+    console.log(where);
+
+    const data = await db.query.notes.findMany({
+      where,
+      with: {
+        noteCategories: {
+          with: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    const countResult = await db
+      .select({ count: count() })
+      .from(notes)
+      .where(where)
+      .get();
+
+    const total = countResult?.count ?? 0;
+
+    const transformedData = data.map((note) => ({
+      id: note.id,
+      title: note.title,
+      slug: note.slug,
+      content: note.content,
+      userId: note.userId,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
+      isPinned: note.isPinned,
+      categories: note.noteCategories.map((nc) => {
+        return {
+          name: nc.category.name,
+          id: nc.category.id,
+          theme: nc.category.theme,
+        };
+      }),
+    }));
+
+    return c.json({
+      success: true,
+      result: transformedData,
+      meta: {
+        total,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return c.json(
+      {
+        success: false,
+        error: e,
+      },
+      500,
+    );
+  }
+});
+
+notesRouter.patch("/:id/pin", verifyAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const { id } = c.req.param();
+
+    const noteId = parseInt(id);
+
+    const existingNote = await db.query.notes.findFirst({
+      where: and(eq(notes.id, noteId), eq(notes.userId, user.id)),
+    });
+
+    if (!existingNote) {
+      return c.json(
+        {
+          success: false,
+          error: "Note not found or access denied",
+        },
+        404,
+      );
+    }
+
+    const newPinStatus = !existingNote.isPinned;
+
+    await db
+      .update(notes)
+      .set({
+        isPinned: newPinStatus,
+      })
+      .where(and(eq(notes.id, noteId), eq(notes.userId, user.id)));
+
+    return c.json({
+      success: true,
+      message: `Note ${newPinStatus ? "pinned" : "unpinned"} successfully`,
+    });
+  } catch (e) {
+    console.error(e);
+    return c.json(
+      {
+        success: false,
+        error: "Internal server error",
       },
       500,
     );
