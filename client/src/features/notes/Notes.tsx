@@ -83,6 +83,7 @@ const Notes = () => {
 
   const regularNotes = notes.filter((note) => !note.isPinned);
   const totalNotes = pinnedNotes.length + regularNotes.length;
+  const regularNotesCount = meta.total;
   return (
     <div className="p-3 md:p-6 h-full overflow-y-auto bg-background">
       <div className="mb-6">
@@ -93,7 +94,8 @@ const Notes = () => {
           </h2>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-muted-foreground">
-              {notes.length} {notes.length === 1 ? "note" : "notes"}
+              {regularNotesCount + pinnedNotes.length}{" "}
+              {regularNotesCount + pinnedNotes.length === 1 ? "note" : "notes"}
             </Badge>
             {pinnedNotes.length > 0 && (
               <Badge variant="secondary" className="bg-primary/10 text-primary">
@@ -145,7 +147,7 @@ const Notes = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <Tag className="w-4 h-4 text-muted-foreground" />
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                    Other Notes ({regularNotes.length})
+                    Other Notes ({regularNotesCount})
                   </h3>
                 </div>
               )}

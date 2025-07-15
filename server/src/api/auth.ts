@@ -8,12 +8,10 @@ import jwt, { type SignOptions } from "jsonwebtoken";
 import { deleteCookie, setCookie } from "hono/cookie";
 import type { Variables } from "../utils/variables.js";
 import verifyAuth from "../utils/verifyAuth.js";
-import { type ZodSchema } from "zod/v4";
+import { z, type ZodSchema } from "zod/v4";
 import type { ValidationTargets } from "hono";
 import { zValidator as zv } from "@hono/zod-validator";
 const authRouter = new Hono<{ Variables: Variables }>();
-type User = InferSelectModel<typeof users>;
-type SafeUser = Omit<User, "password">;
 
 const zValidator = <
   T extends ZodSchema,
@@ -33,6 +31,34 @@ const zValidator = <
       });
     }
   });
+
+type User = InferSelectModel<typeof users>;
+type SafeUser = Omit<User, "password">;
+const UserResponseSchema = z.object({
+  success: z.boolean(),
+  result: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+  }),
+});
+
+const ErrorResponseSchema = z.object({
+  message: z.string(),
+  errors: z
+    .array(
+      z.object({
+        path: z.string(),
+        message: z.string(),
+      }),
+    )
+    .optional(),
+});
+
+const LogoutResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
 
 function signToken(id: number): string {
   const secret = process.env.JWT_SECRET;

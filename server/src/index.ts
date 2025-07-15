@@ -5,7 +5,9 @@ import notesRouter from "./api/notes.js";
 import categoriesRouter from "./api/categories.js";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-const app = new Hono();
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { swaggerUI } from "@hono/swagger-ui";
+const app = new OpenAPIHono();
 
 app.use(logger());
 
@@ -53,6 +55,23 @@ app.route("/api/auth", authRouter);
 app.route("/api/notes", notesRouter);
 app.route("/api/categories", categoriesRouter);
 
+app.doc("/doc", {
+  openapi: "3.0.0",
+  info: {
+    version: "1.0.0",
+    title: "Leapfrog Notes API",
+    description:
+      "Api documenation for managing notes and categories with authentication",
+  },
+  servers: [
+    {
+      url: "http://localhost:3000",
+      description: "Development server",
+    },
+  ],
+});
+
+app.get("/swagger", swaggerUI({ url: "/doc" }));
 serve(
   {
     fetch: app.fetch,

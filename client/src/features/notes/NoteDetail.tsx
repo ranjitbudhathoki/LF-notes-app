@@ -70,8 +70,6 @@ export default function NoteDetail() {
   }
   const note: Note = noteData.result;
 
-  console.log("notes", note);
-
   return (
     <div className="max-w-7xl space-y-6 mx-auto mt-4 ">
       <div className="flex items-center justify-between">
