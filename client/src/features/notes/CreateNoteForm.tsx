@@ -65,13 +65,14 @@ export default function CreateNoteForm() {
     return <Loader />;
   }
 
-  const categories: Category[] = categoriesData?.data || [];
+  const categories: Category[] = categoriesData.result || [];
+  console.log("categories.length", categories.length);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     mutate(data);
   };
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-gray-900">Create New Note</h1>
@@ -153,66 +154,57 @@ export default function CreateNoteForm() {
                   </p>
                 )}
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">
-                    Categories
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Organize your note with relevant categories
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-3">
-                    Available Categories
-                  </p>
-                  <Controller
-                    name="categoryIds"
-                    control={control}
-                    rules={{
-                      validate: (value) =>
-                        value.length >= 1 ||
-                        "At least one category must be selected",
-                    }}
-                    render={({ field }) => (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {categories.map((category) => (
-                          <div
-                            key={category.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={`category-${category.id}`}
-                              checked={field.value.includes(category.id)}
-                              onCheckedChange={(checked) => {
-                                const newValue = checked
-                                  ? [...field.value, category.id]
-                                  : field.value.filter(
-                                      (id) => id !== category.id,
-                                    );
-                                field.onChange(newValue);
-                              }}
-                            />
-                            <label
-                              htmlFor={`category-${category.id}`}
-                              className={`text-sm cursor-pointer font-medium`}
-                            >
-                              {category.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  />
-                  {errors.categoryIds && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.categoryIds.message}
+              {categories.length > 0 && (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-1">
+                      Categories
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Organize your note with relevant categories
                     </p>
-                  )}
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-3">
+                      Available Categories
+                    </p>
+                    <Controller
+                      name="categoryIds"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {categories.map((category) => (
+                            <div
+                              key={category.id}
+                              className="flex items-center space-x-2"
+                            >
+                              <Checkbox
+                                id={`category-${category.id}`}
+                                checked={field.value.includes(category.id)}
+                                onCheckedChange={(checked) => {
+                                  const newValue = checked
+                                    ? [...field.value, category.id]
+                                    : field.value.filter(
+                                        (id) => id !== category.id,
+                                      );
+                                  field.onChange(newValue);
+                                }}
+                              />
+                              <label
+                                htmlFor={`category-${category.id}`}
+                                className={`text-sm cursor-pointer font-medium`}
+                              >
+                                {category.name}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"

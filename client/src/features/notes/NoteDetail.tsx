@@ -13,14 +13,21 @@ export default function NoteDetail() {
   const { slug } = useParams();
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    if (!dateString) return "Unknown";
+
+    const date = new Date(dateString + "Z");
+    if (isNaN(date.getTime())) return "Unknown";
+
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     });
   };
+
   const { data: noteData, isLoading } = useQuery({
     queryKey: ["note", slug],
     queryFn: () => getNoteBySlugApi(slug!),
@@ -32,7 +39,7 @@ export default function NoteDetail() {
 
   if (!noteData || !noteData.result) {
     return (
-      <div className="max-w-4xl mx-auto mt-4">
+      <div className="w-full mx-auto mt-4">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/notes">
@@ -64,7 +71,7 @@ export default function NoteDetail() {
   const note: Note = noteData.result;
 
   return (
-    <div className="max-w-4xl space-y-6 mx-auto mt-4 ">
+    <div className="max-w-7xl space-y-6 mx-auto mt-4 ">
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/notes">

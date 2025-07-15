@@ -126,7 +126,11 @@ const Sidebar = ({ isMobile }: SidebarProps) => {
           )}
         </div>
 
-        <Button className="w-full mb-4" size={isMobile ? "default" : "sm"}>
+        <Button
+          className="w-full mb-4"
+          size={isMobile ? "default" : "sm"}
+          onClick={() => navigate("/notes/new")}
+        >
           <Plus className="w-4 h-4 mr-2" />
           New Note
         </Button>

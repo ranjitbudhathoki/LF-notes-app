@@ -5,7 +5,8 @@ import DOMPurify from "dompurify";
 import { NoteActions } from "./NoteActions";
 import type { Note } from "@/config/types";
 import { Badge } from "@/components/ui/badge";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+
 const formatSafeDate = (dateString: string) => {
   if (!dateString) return "Unknown";
 
@@ -24,11 +25,15 @@ const getWordCount = (text: string) => {
 
 const NoteCard = ({ note }: { note: Note }) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const sortBy = searchParams.get("sortBy") || "updatedAt";
 
   return (
-    <Card className="cursor-pointer transition-all hover:shadow-lg border-2 border-border hover:border-primary/50 group">
+    <Card
+      className="cursor-pointer transition-all hover:shadow-lg border-2 border-border hover:border-primary/50 group"
+      onClick={() => navigate(`${note.slug}`)}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">

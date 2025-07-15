@@ -69,13 +69,19 @@ export function NoteActions({ note }: { note: Note }) {
             )}
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => navigate(`/notes/${note.slug}/edit`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/notes/${note.slug}/edit`);
+            }}
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDeleteDialog(true);
+            }}
             className="text-red-500 focus:text-red-600 hover:text-red-600 focus:bg-gray-100"
           >
             <Trash2 className="h-4 w-4 mr-2" />
@@ -94,9 +100,17 @@ export function NoteActions({ note }: { note: Note }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              disabled={isDeleting}
+              onClick={(e) => e.stopPropagation()}
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteNote()}
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteNote();
+              }}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
