@@ -177,3 +177,4 @@ Application Features
 -   **Category Management**: User can Create and manage categories to organize notes effectively
 -   **Search & Filter**: User can search for notes based on category or text content as well as sort them by date or title
 -   **Pin Notes**: User can pin notes to the top of their list for easy access
+-   **Sanitized Content**: User input is sanitized to prevent XSS attacks both in client and server side
