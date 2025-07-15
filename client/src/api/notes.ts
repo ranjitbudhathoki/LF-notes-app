@@ -43,6 +43,31 @@ export async function getNotesApi({
   return data;
 }
 
+interface GetPinnedNotesPayload {
+  category?: string;
+}
+
+export async function getPinnedNotesApi({
+  category = "all",
+}: GetPinnedNotesPayload) {
+  const params = new URLSearchParams();
+
+  if (category && category !== "all") {
+    params.append("categoryId", category);
+  }
+
+  console.log({ params });
+  const { data } = await _axios.get("/notes/pinned", {
+    params,
+  });
+  return data;
+}
+
+export async function togglePinNoteApi(noteId: number) {
+  const { data } = await _axios.patch(`/notes/${noteId}/pin`);
+  return data;
+}
+
 export async function createNoteApi(payload: CreateNotePayload) {
   const { data } = await _axios.post("/notes", payload);
   return data;

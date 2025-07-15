@@ -24,7 +24,14 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import type { Note } from "@/config/types";
 
-export function NoteActions({ note }: { note: Note }) {
+export function NoteActions({
+  note,
+  mutate,
+}: {
+  note: Note;
+  mutate: (noteId: number) => void;
+  isPending: boolean;
+}) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -55,7 +62,12 @@ export function NoteActions({ note }: { note: Note }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              mutate(note.id);
+            }}
+          >
             {note.isPinned ? (
               <>
                 <Pin className="w-4 h-4 mr-2" />

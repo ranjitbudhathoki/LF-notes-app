@@ -23,7 +23,14 @@ const getWordCount = (text: string) => {
     .filter((word) => word.length > 0).length;
 };
 
-const NoteCard = ({ note }: { note: Note }) => {
+const NoteCard = ({
+  note,
+  mutate,
+}: {
+  note: Note;
+  mutate: (noteId: number) => void;
+  isPending: boolean;
+}) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -56,10 +63,17 @@ const NoteCard = ({ note }: { note: Note }) => {
           </div>
           <div className="flex items-center gap-1 ml-2 ">
             {note.isPinned && (
-              <Pin className="w-4 h-4 text-primary fill-current" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  mutate(note.id);
+                }}
+              >
+                <Pin className="w-4 h-4 text-primary fill-current" />
+              </button>
             )}
 
-            <NoteActions note={note} />
+            <NoteActions note={note} mutate={mutate} isPending />
           </div>
         </div>
       </CardHeader>
