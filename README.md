@@ -165,3 +165,14 @@ The database schema was designed with the following assumptions and consideratio
 -   **Referential Integrity**: Deleting a user automatically removes their notes, categories, and associations
 -   **Unique Constraints**: Note slugs are globally unique for URL generation
 -   **Required Fields**: Required fields are marked as NOT NULL
+
+
+Application Features
+--------------------
+
+### Core Features
+
+-   **User Authentication & Authorization**:I've used json web token for authentication and authorization and the password of user is   hashed using bcrypt.
+-   **Note Creation & Management**: User can Create, edit, delete, and organize notes with rich text support.
+-   **Category Management**: User can Create and manage categories to organize notes effectively
+-   **Search & Filter**: User can search for notes based on category or text content as well as sort them by date or title
