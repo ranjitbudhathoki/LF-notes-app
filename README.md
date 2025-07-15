@@ -139,3 +139,29 @@ Technologies Used
 - **SQLite**
 
   I've used SQLite as the database for this project because it is lightweight, file-based relational database that doesn't require a separate server process, making it ideal for the scope of this project. I chose SQLite over other databases like PostgreSQL or MySQL because it's simple to set up, requires zero configuration, and integrates well with Drizzle ORM. Sqlite is not only lightweight but is suitable for production environments as well and scales very well
+
+
+
+## Assumptions Made During Database Schema Design
+
+The database schema was designed with the following assumptions and considerations:
+
+### User Management
+-   Each `note` and `category` is associated with a specific `user`
+-   Users are identified by unique email addresses for authentication
+-   User passwords are stored in hashed format
+-   Each user operates within their own isolated data space
+
+### Note-Category Relationships
+
+-   **Many-to-Many Relationship**: A note can belong to multiple categories, and a category can contain multiple notes
+-   **Bridge Table**: `note_categories` table acts as a brdge table between `notes` and `categories`
+-   **Flexible Organization**: Notes can exist without categories (uncategorized notes)
+-   **Empty Categories**: Categories can exist without assigned notes
+
+### Data Integrity and Constraints
+
+-   **Cascading Deletes**: All foreign keys use `onDelete: "cascade"` for automatic cleanup
+-   **Referential Integrity**: Deleting a user automatically removes their notes, categories, and associations
+-   **Unique Constraints**: Note slugs are globally unique for URL generation
+-   **Required Fields**: Required fields are marked as NOT NULL
