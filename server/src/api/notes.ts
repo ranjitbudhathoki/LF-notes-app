@@ -46,13 +46,21 @@ const zValidator = <
   });
 const notesRouter = new Hono<{ Variables: Variables }>();
 
+const sortByOptions = [
+  "updatedAt",
+  "createdAt",
+  "titleAsc",
+  "titleDesc",
+] as const;
 const filterSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).default(10),
   categoryId: z.string().optional(),
-  sortBy: z
-    .enum(["updatedAt", "createdAt", "titleAsc", "titleDesc"])
-    .optional(),
+  sortBy: z.preprocess(
+    (val) => (sortByOptions.includes(val as any) ? val : "updatedAt"),
+    z.enum(sortByOptions),
+  ),
+
   search: z.string().optional(),
 });
 
@@ -117,7 +125,6 @@ notesRouter.get("/", verifyAuth, async (c) => {
     }
 
     const where = and(...whereConditions);
-    console.log("where conditions:", whereConditions);
 
     const data = await db.query.notes.findMany({
       where,
@@ -149,6 +156,7 @@ notesRouter.get("/", verifyAuth, async (c) => {
       userId: note.userId,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
+      isPinned: note.isPinned,
       categories: note.noteCategories.map((nc) => {
         return {
           name: nc.category.name,
@@ -211,6 +219,7 @@ notesRouter.get("/:slug", verifyAuth, async (c) => {
     userId: data.userId,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
+    isPinned: data.isPinned,
     categories: data.noteCategories.map((nc) => {
       return {
         name: nc.category.name,
@@ -229,7 +238,7 @@ notesRouter.post(
   verifyAuth,
   zValidator("json", createNoteSchema),
   async (c) => {
-    const { title, content, categoryIds } = c.req.valid("json");
+    const { title, content, categoryIds, isPinned } = c.req.valid("json");
     const user = c.get("user");
     const baseSlug = convert(title);
     const timestamp = new Date()
@@ -253,6 +262,7 @@ notesRouter.post(
           content,
           slug,
           userId: user.id,
+          isPinned: isPinned ?? false,
         })
         .returning()
         .get();

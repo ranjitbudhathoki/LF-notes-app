@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: int().primaryKey({ autoIncrement: true }),
@@ -17,6 +17,7 @@ export const notes = sqliteTable("notes", {
   id: int().primaryKey({ autoIncrement: true }),
   title: text().notNull(),
   slug: text().notNull().unique(),
+  isPinned: integer({ mode: "boolean" }).notNull().default(false),
   content: text().notNull(),
   userId: int()
     .notNull()

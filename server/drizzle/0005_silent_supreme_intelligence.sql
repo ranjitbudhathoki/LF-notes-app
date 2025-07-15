@@ -1,0 +1,1 @@
+ALTER TABLE `notes` ADD `isPinned` integer DEFAULT false NOT NULL;
