@@ -131,3 +131,6 @@ Technologies Used
 - **Drizzle orm**
 
   I've used Drizzle ORM for database operations. It is typesafe and follows a schema-first approach, making database queries safe, predictable, and fully integrated with TypeScript. Compared to other ORMs like Prisma or TypeORM, Drizzle is more lightweight, easier to debug, and better suited for SQLite and edge-based applications. It also keeps SQL close to the developer without abstracting it away too much, which aids in understanding and maintainability.
+
+- **Vite**
+  I've used Vite as the build tool and development server for the frontend. It provides lightning-fast startup and hot module replacement during development. Vite is designed for modern web development and works seamlessly with React, Tailwind CSS, and TypeScript, which made it an ideal choice for this project.
