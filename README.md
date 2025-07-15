@@ -35,7 +35,7 @@ cd server
 Copy the example environment file and configure it:
 
 ```
-cp .env.example .env
+cp env.example .env
 
 ```
 
@@ -51,11 +51,11 @@ JWT_EXPIRES_IN=1d
 
 #### Frontend Environment Setup
 
-If there's a `.env.example` file in the client directory:
+If there's a `env.example` file in the client directory:
 
 ```
 cd ../client
-cp .env.example .env
+cp env.example .env
 
 ```
 
