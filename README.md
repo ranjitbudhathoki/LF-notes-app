@@ -55,7 +55,7 @@ If there's a `env.example` file in the client directory:
 
 ```
 cd ../client
-cp env.example .env
+cp .env.example .env
 
 ```
 
@@ -111,3 +111,23 @@ pnpm run dev
 ```
 
 The frontend will start on `http://localhost:5173`
+
+# Engineering Decisions and Assumptions made during the development of this project
+
+Technologies Used
+-------------
+- **Hono js**
+
+  I've used Hono js in this project as it is a modern and lightweight web framework for javascript runtimes and it  supports all kinds of js runtimes like node, deno, bun, cloudflare workers, edge functions, and more unlike other frameworks. It is fast, efficient, and easy to use and the best thing is it can be deployed on any platform.
+
+- **Tailwind css**
+
+  I've used Tailwind css for styling the application. It is a utility-first CSS framework that provides a set of pre-built classes that can be used to style HTML elements. It is highly customizable and can be used to create responsive and mobile-first designs. It is also easy to learn and use, and can be integrated with other frameworks like React, Vue, and Angular. It makes designing easier and faster.
+
+- **Shadcn ui**
+
+  I've used Shadcn ui for building reusable components.Shadcn provides collection of components that can be used to build user interfaces. It is highly customizable and can be used to create responsive and mobile-first designs. It provides accessible ui components (styled radix primitives). It is different from other ui libraries like Chakra UI, Material UI, and Ant Design because we own the code and can customize it as per our needs which means we don't have to stick with the default styles.
+
+- **Drizzle orm**
+
+  I've used Drizzle ORM for database operations. It is typesafe and follows a schema-first approach, making database queries safe, predictable, and fully integrated with TypeScript. Compared to other ORMs like Prisma or TypeORM, Drizzle is more lightweight, easier to debug, and better suited for SQLite and edge-based applications. It also keeps SQL close to the developer without abstracting it away too much, which aids in understanding and maintainability.
