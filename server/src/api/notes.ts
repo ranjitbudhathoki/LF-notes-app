@@ -52,6 +52,7 @@ const sortByOptions = [
   "titleAsc",
   "titleDesc",
 ] as const;
+
 const filterSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).default(10),
@@ -443,13 +444,6 @@ notesRouter.post(
       .slice(0, 14);
     const slug = `${baseSlug}-${timestamp}`;
 
-    if (categoryIds.length === 0) {
-      return c.json({
-        success: false,
-        message:
-          "Category cannot be empty. Please select at least one category.",
-      });
-    }
     const result = await db.transaction(async (tx) => {
       const note = await tx
         .insert(notes)
@@ -463,12 +457,14 @@ notesRouter.post(
         .returning()
         .get();
 
-      const noteCategoryValues = categoryIds.map((categoryId) => ({
+      const noteCategoryValues = categoryIds?.map((categoryId) => ({
         noteId: note.id,
         categoryId: categoryId,
       }));
 
-      await tx.insert(noteCategories).values(noteCategoryValues);
+      if (noteCategoryValues && noteCategoryValues.length > 0) {
+        await tx.insert(noteCategories).values(noteCategoryValues);
+      }
       return note;
     });
 

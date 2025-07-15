@@ -12,7 +12,7 @@ export const createNoteSchema = z.object({
 
   categoryIds: z
     .array(z.number({ message: "Invalid category ID" }).positive())
-    .min(1, { message: "At least one category must be selected" }),
+    .optional(),
   isPinned: z.boolean().optional().default(false),
 });
 
