@@ -137,4 +137,5 @@ Technologies Used
   I've used Vite as the build tool and development server for the frontend. It provides lightning-fast startup and hot module replacement during development. Vite is designed for modern web development and works seamlessly with React, Tailwind CSS, and TypeScript, which made it an ideal choice for this project.
 
 - **SQLite**
+
   I've used SQLite as the database for this project because it is lightweight, file-based relational database that doesn't require a separate server process, making it ideal for the scope of this project. I chose SQLite over other databases like PostgreSQL or MySQL because it's simple to set up, requires zero configuration, and integrates well with Drizzle ORM. Sqlite is not only lightweight but is suitable for production environments as well and scales very well
