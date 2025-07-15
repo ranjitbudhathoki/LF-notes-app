@@ -1,19 +1,7 @@
 import { Hono } from "hono";
 import db from "../services/drizzle.js";
 import { categories, noteCategories, notes } from "../db/schema.js";
-import {
-  eq,
-  and,
-  count,
-  asc,
-  desc,
-  sql,
-  exists,
-  or,
-  like,
-  ilike,
-  SQL,
-} from "drizzle-orm";
+import { eq, and, count, asc, desc, sql, exists, or, SQL } from "drizzle-orm";
 import verifyAuth from "../utils/verifyAuth.js";
 import type { Variables } from "../utils/variables.js";
 import {
@@ -25,7 +13,7 @@ import z from "zod";
 import { type ZodSchema } from "zod/v4";
 import type { ValidationTargets } from "hono";
 import { zValidator as zv } from "@hono/zod-validator";
-
+import DOMPurify from "isomorphic-dompurify";
 const zValidator = <
   T extends ZodSchema,
   Target extends keyof ValidationTargets,
@@ -443,14 +431,14 @@ notesRouter.post(
       .replace(/[-:T.]/g, "")
       .slice(0, 14);
     const slug = `${baseSlug}-${timestamp}`;
-
+    const sanitizedContent = DOMPurify.sanitize(content);
     const result = await db.transaction(async (tx) => {
       const note = await tx
         .insert(notes)
         .values({
           title,
-          content,
           slug,
+          content: sanitizedContent,
           userId: user.id,
           isPinned: isPinned ?? false,
         })
@@ -481,9 +469,11 @@ notesRouter.patch(
   zValidator("json", updateNoteSchema),
   async (c) => {
     const slug = c.req.param("slug");
-    const { categoryIds, ...rest } = c.req.valid("json");
+    const { categoryIds, content, ...rest } = c.req.valid("json");
 
     const user = c.get("user");
+
+    const sanitizedContent = content ? DOMPurify.sanitize(content) : undefined;
 
     const existingNote = await db
       .select({ id: notes.id })
@@ -503,6 +493,7 @@ notesRouter.patch(
         .update(notes)
         .set({
           ...rest,
+          content: sanitizedContent,
         })
         .where(eq(notes.id, existingNote.id))
         .returning()
