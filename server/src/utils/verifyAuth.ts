@@ -24,23 +24,36 @@ export default async function verifyAuth(c: Context, next: Next) {
     );
   }
 
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+  try {
+    const decodedToken = jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+    ) as JwtPayload;
 
-  const currentUser = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, decodedToken.id))
-    .get();
+    const currentUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, decodedToken.id))
+      .get();
 
-  if (!currentUser) {
+    if (!currentUser) {
+      return c.json(
+        {
+          message: "The user belonging to this token no longer exists",
+        },
+        401,
+      );
+    }
+
+    c.set("user", currentUser);
+    await next();
+  } catch (error) {
+    console.error("Authentication error:", error);
     return c.json(
       {
-        message: "Ther user belonging to this token no longer exists",
+        message: "Unauthorized. Invalid or expired token.",
       },
       401,
     );
   }
-
-  c.set("user", currentUser);
-  await next();
 }

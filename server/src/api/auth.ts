@@ -15,10 +15,10 @@ const authRouter = new Hono<{ Variables: Variables }>();
 
 const zValidator = <
   T extends ZodSchema,
-  Target extends keyof ValidationTargets,
+  Target extends keyof ValidationTargets
 >(
   target: Target,
-  schema: T,
+  schema: T
 ) =>
   zv(target, schema, (result, c) => {
     if (!result.success) {
@@ -50,7 +50,7 @@ const ErrorResponseSchema = z.object({
       z.object({
         path: z.string(),
         message: z.string(),
-      }),
+      })
     )
     .optional(),
 });
@@ -158,13 +158,13 @@ authRouter.post("/login", zValidator("json", loginSchema), async (c) => {
         message:
           "Invalid Credetials. Please try again with correct credentials",
       },
-      404,
+      404
     );
   }
 
   const isPasswordCorrect = await bcrypt.compare(
     password,
-    existingUser.password,
+    existingUser.password
   );
 
   console.log("existingUser", existingUser);
@@ -175,7 +175,7 @@ authRouter.post("/login", zValidator("json", loginSchema), async (c) => {
         message:
           "Invalid Credetials. Please try again with correct credentials",
       },
-      401,
+      401
     );
   }
 
