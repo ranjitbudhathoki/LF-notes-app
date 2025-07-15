@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import db from "../services/drizzle.js";
-import { noteCategories, notes } from "../db/schema.js";
+import { categories, noteCategories, notes } from "../db/schema.js";
 import {
   eq,
   and,
@@ -111,6 +111,40 @@ notesRouter.get("/", verifyAuth, async (c) => {
     }
 
     if (categoryId && categoryId !== "all") {
+      const categoryIdNum = parseInt(categoryId);
+      if (isNaN(categoryIdNum)) {
+        return c.json({
+          success: true,
+          result: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+          },
+        });
+      }
+
+      const categoryExists = await db.query.categories.findFirst({
+        where: and(
+          eq(categories.id, categoryIdNum),
+          eq(categories.userId, user.id),
+        ),
+      });
+
+      if (!categoryExists) {
+        return c.json({
+          success: true,
+          result: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+          },
+        });
+      }
+
       whereConditions.push(
         exists(
           db
@@ -119,13 +153,12 @@ notesRouter.get("/", verifyAuth, async (c) => {
             .where(
               and(
                 eq(noteCategories.noteId, notes.id),
-                eq(noteCategories.categoryId, parseInt(categoryId)),
+                eq(noteCategories.categoryId, categoryIdNum),
               ),
             ),
         ),
       );
     }
-
     const where = and(...whereConditions);
 
     const data = await db.query.notes.findMany({
@@ -200,7 +233,34 @@ notesRouter.get("/pinned", verifyAuth, async (c) => {
     let whereConditions: any[] = [
       and(eq(notes.userId, user.id), eq(notes.isPinned, true)),
     ];
+
     if (categoryId && categoryId !== "all") {
+      const categoryIdNum = parseInt(categoryId);
+      if (isNaN(categoryIdNum)) {
+        return c.json({
+          success: true,
+          result: [],
+        });
+      }
+
+      const categoryExists = await db.query.categories.findFirst({
+        where: and(
+          eq(categories.id, categoryIdNum),
+          eq(categories.userId, user.id),
+        ),
+      });
+
+      if (!categoryExists) {
+        return c.json({
+          success: true,
+          result: [],
+          meta: {
+            total: 0,
+            totalPages: 0,
+          },
+        });
+      }
+
       whereConditions.push(
         exists(
           db
@@ -209,7 +269,7 @@ notesRouter.get("/pinned", verifyAuth, async (c) => {
             .where(
               and(
                 eq(noteCategories.noteId, notes.id),
-                eq(noteCategories.categoryId, parseInt(categoryId)),
+                eq(noteCategories.categoryId, categoryIdNum),
               ),
             ),
         ),
