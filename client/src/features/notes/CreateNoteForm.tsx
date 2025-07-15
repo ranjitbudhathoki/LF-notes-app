@@ -14,6 +14,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
 import type { Category } from "@/config/types";
+import { Badge } from "@/components/ui/badge";
 
 interface Inputs {
   title: string;
@@ -191,12 +192,17 @@ export default function CreateNoteForm() {
                                   field.onChange(newValue);
                                 }}
                               />
-                              <label
-                                htmlFor={`category-${category.id}`}
-                                className={`text-sm cursor-pointer font-medium`}
+                              <Badge
+                                key={category.id}
+                                className="text-xs px-2 py-0.5 "
+                                style={{
+                                  backgroundColor: `${category.theme}20`,
+                                  color: category.theme,
+                                  borderColor: `${category.theme}40`,
+                                }}
                               >
                                 {category.name}
-                              </label>
+                              </Badge>
                             </div>
                           ))}
                         </div>
