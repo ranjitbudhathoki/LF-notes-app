@@ -172,7 +172,8 @@ Application Features
 
 ### Core Features
 
--   **User Authentication & Authorization**:I've used json web token for authentication and authorization and the password of user is   hashed using bcrypt.
+-   **User Authentication & Authorization**:I've used json web token for authentication and authorization and the password of user is   hashed using bcrypt. For now I've only implemented access token. But in future I'll implement refresh token as well in order to provide a more secure user authentication.
 -   **Note Creation & Management**: User can Create, edit, delete, and organize notes with rich text support.
 -   **Category Management**: User can Create and manage categories to organize notes effectively
 -   **Search & Filter**: User can search for notes based on category or text content as well as sort them by date or title
+-   **Pin Notes**: User can pin notes to the top of their list for easy access
